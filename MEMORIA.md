@@ -5,7 +5,8 @@ Historial de decisiones y cambios. Lo más reciente va arriba en el registro.
 ## Estado actual
 
 - **Fase:** sistema completo v1.0. Backend probado: `npm run prueba` pasa 26/26 y la sincronización caja → nube funciona.
-- **Siguiente:** subir el proyecto a GitHub (entrega del Proyecto Integrador). Pantallas ya probadas en el navegador el 2026-10-31.
+- **Siguiente:** entregar el enlace de GitHub al profesor (Proyecto Integrador). Pantallas ya probadas en el navegador el 2026-10-31.
+- **GitHub:** https://github.com/rosbelycontrer/agropos (público, rama `main`). Para subir cambios: `git add -A`, `git commit -m "..."`, `git push`.
 - **Stack:** Node.js + Express 5, SQLite con better-sqlite3, HTML/CSS/JS sin frameworks, `serialport` para la báscula. Sin CDN (Font Awesome se sirve desde `node_modules`).
 - **Cómo se abre:** `npm run dev` (caja + nube juntas, abre el navegador y reinicia solo al cambiar `src/`). También doble clic en `INICIAR-CAJA.bat` (puerto 3000) y, para la nube, `INICIAR-NUBE.bat` (puerto 4000). O `npm start` / `npm run start:nube`.
 - **Usuarios de ejemplo:** `admin@agropos.com` / `admin123` (admin) y `cajero@agropos.com` / `cajero123` (cajero).
@@ -37,6 +38,10 @@ Historial de decisiones y cambios. Lo más reciente va arriba en el registro.
 - Recuperar contraseña; anular/devolver ventas; cierre de caja.
 
 ## Registro de cambios
+
+### 2026-11-01
+- Sesión de GitHub iniciada (`gh auth login`, cuenta `rosbelycontrer`). Autor de los commits: `rosbelycontrer` con el correo privado noreply de GitHub.
+- Creado el repositorio público https://github.com/rosbelycontrer/agropos y subido el proyecto (decisión del usuario: público, para que el profesor lo vea con el enlace).
 
 ### 2026-10-31
 - Revisión completa: `npm run prueba` 26/26 y pantallas probadas en el navegador (venta por kg, cobro con cambio, Inventario, Clientes, Reportes, Configuración): todo funciona.
