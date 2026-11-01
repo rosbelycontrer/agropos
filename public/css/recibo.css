@@ -1,0 +1,53 @@
+/* Recibo para impresora térmica de 80 mm (también sirve en hoja carta). */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #e2e8f0;
+  font-family: 'Courier New', Courier, monospace;
+  color: #000;
+  font-size: 12px;
+}
+
+.barra-acciones {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+}
+
+.barra-acciones button {
+  font: 600 14px 'Segoe UI', sans-serif;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #22c55e;
+  color: #fff;
+  cursor: pointer;
+}
+
+.barra-acciones button + button { background: #334155; }
+
+.recibo {
+  width: 80mm;
+  max-width: 100%;
+  margin: 0 auto 20px;
+  background: #fff;
+  padding: 5mm 4mm;
+}
+
+.centro { text-align: center; }
+.negrita { font-weight: bold; }
+.grande { font-size: 15px; }
+.chico { font-size: 10px; }
+.separador { border-top: 1px dashed #000; margin: 6px 0; }
+.fila { display: flex; justify-content: space-between; gap: 6px; }
+.fila span:last-child { text-align: right; white-space: nowrap; }
+.item { margin-bottom: 4px; }
+.item .detalle { padding-left: 8px; }
+
+@media print {
+  @page { size: 80mm auto; margin: 0; }
+  body { background: #fff; }
+  .barra-acciones { display: none; }
+  .recibo { margin: 0; width: 80mm; }
+}

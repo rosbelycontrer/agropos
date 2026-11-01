@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroPOS - Panel</title>
+  <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app-page">
+
+  <!-- Barra lateral -->
+  <nav class="sidebar">
+    <div class="sidebar-top">
+      <button class="sidebar-icon active" data-vista="ventas" title="Panel de ventas"><i class="fa-solid fa-cash-register"></i></button>
+      <button class="sidebar-icon" data-vista="inventario" title="Inventario"><i class="fa-solid fa-box-archive"></i></button>
+      <button class="sidebar-icon" data-vista="clientes" title="Clientes"><i class="fa-solid fa-users"></i></button>
+      <button class="sidebar-icon solo-admin" data-vista="reportes" title="Reportes"><i class="fa-solid fa-chart-column"></i></button>
+      <button class="sidebar-icon solo-admin" data-vista="configuracion" title="Configuración"><i class="fa-solid fa-gear"></i></button>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon btn-logout" id="btn-salir" title="Cerrar sesión"><i class="fa-solid fa-power-off"></i></button>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    <header class="header-nav">
+      <div class="brand-logo"><i class="fa-solid fa-seedling"></i> AgroPOS <small id="etiqueta-caja"></small></div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-vista="ventas">Panel de ventas</button>
+        <button class="nav-tab" data-vista="inventario">Inventario</button>
+        <button class="nav-tab" data-vista="clientes">Clientes</button>
+        <button class="nav-tab solo-admin" data-vista="reportes">Reportes</button>
+      </div>
+      <div class="header-user">
+        <span class="pill" id="pill-nube"><i class="fa-solid fa-cloud"></i> <span>…</span></span>
+        <span id="reloj"></span>
+        <div class="user-profile">
+          <i class="fa-regular fa-user"></i>
+          <span id="usuario-nombre"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <!-- ============ VENTAS ============ -->
+      <section class="view active" id="vista-ventas">
+        <div class="dashboard-grid">
+
+          <!-- 1. Productos -->
+          <div class="panel-box">
+            <div class="box-header">
+              <span class="box-title">Productos</span>
+              <select class="select" id="filtro-categoria" style="width:auto;font-size:0.8rem;padding:4px 8px"></select>
+            </div>
+            <div class="buscador">
+              <input class="input" id="buscar-producto" placeholder="Buscar por nombre o PLU (F2)" autocomplete="off">
+            </div>
+            <div class="product-list" id="lista-productos"></div>
+          </div>
+
+          <!-- 2. Báscula y carrito -->
+          <div class="panel-box">
+            <div class="box-header">
+              <span class="box-title">Báscula digital</span>
+              <span class="pill" id="pill-bascula">…</span>
+            </div>
+            <div class="meter-display">
+              <div class="gauge-circle" id="gauge">
+                <div class="gauge-inner">
+                  <div class="gauge-label">PESO NETO</div>
+                  <div class="gauge-value" id="peso-valor">0.000</div>
+                  <div class="gauge-unit">KG</div>
+                </div>
+              </div>
+              <div class="meter-info">
+                <span id="peso-estable">—</span>
+                <span id="peso-tara"></span>
+              </div>
+            </div>
+            <div class="meter-actions">
+              <button class="btn-action" id="btn-cero">CERO</button>
+              <button class="btn-action secondary" id="btn-tara">TARA</button>
+            </div>
+            <div class="simulador oculto" id="simulador">
+              <i class="fa-solid fa-flask"></i> Simulador (para probar sin báscula): poner en el plato…
+              <div class="simulador-botones">
+                <button class="btn chico secundario" data-sim="0.25">250 g</button>
+                <button class="btn chico secundario" data-sim="0.5">500 g</button>
+                <button class="btn chico secundario" data-sim="1">1 kg</button>
+                <button class="btn chico secundario" data-sim="2.5">2,5 kg</button>
+                <button class="btn chico secundario" data-sim="azar">Al azar</button>
+                <button class="btn chico contorno" data-sim="0">Retirar</button>
+              </div>
+            </div>
+
+            <div class="box-header cart-header">
+              <span class="box-title" id="titulo-carrito">Carrito de venta (0)</span>
+              <button class="icon-btn borrar" id="btn-vaciar" title="Vaciar carrito"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div class="cart-items" id="carrito"></div>
+            <div class="cart-footer"><span>TOTAL</span><span id="carrito-total">$0</span></div>
+          </div>
+
+          <!-- 3. Cobro -->
+          <div class="panel-box">
+            <div class="box-header"><span class="box-title">Cobro multimoneda</span></div>
+
+            <div class="cliente-box">
+              <div class="fila">
+                <input class="input" id="cedula" placeholder="Cédula del cliente (puntos)" inputmode="numeric" autocomplete="off">
+                <button class="btn secundario" id="btn-buscar-cliente" title="Buscar"><i class="fa-solid fa-magnifying-glass"></i></button>
+              </div>
+              <div id="cliente-info"></div>
+            </div>
+
+            <div class="summary-line"><span>Total productos</span><span id="res-bruto">$0</span></div>
+            <div class="summary-line" id="linea-descuento"><span>Descuento por puntos</span><span id="res-descuento">$0</span></div>
+            <div class="summary-line"><span>IVA incluido</span><span id="res-iva">$0</span></div>
+            <div class="summary-line"><span>Redondeo (a $50)</span><span id="res-redondeo">$0</span></div>
+            <div class="summary-line total"><span>TOTAL A PAGAR</span><span id="res-total">$0</span></div>
+
+            <div class="currency-box">
+              <div class="currency-row"><span><i class="fa-solid fa-coins" style="color:#eab308"></i> Pesos</span><span class="currency-value" id="eq-cop">$0</span></div>
+              <div class="currency-row"><span><i class="fa-solid fa-dollar-sign" style="color:#3b82f6"></i> Dólares</span><span class="currency-value" id="eq-usd">US$0,00</span></div>
+              <div class="currency-row"><span><i class="fa-solid fa-money-bill" style="color:#22c55e"></i> Bolívares</span><span class="currency-value" id="eq-ves">Bs 0,00</span></div>
+            </div>
+            <div class="tasa-linea">
+              <span id="tasa-texto">Tasa del día: …</span>
+              <button class="btn chico contorno solo-admin" id="btn-tasa"><i class="fa-solid fa-pen"></i> Tasa</button>
+            </div>
+
+            <div class="payment-methods" id="metodos"></div>
+            <div class="monedas" id="monedas"></div>
+            <div class="recibido">
+              <input class="input" id="monto-recibido" placeholder="Recibido" inputmode="decimal" autocomplete="off">
+              <button class="btn secundario" id="btn-agregar-pago" title="Agregar pago (para pagos mixtos)"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <div class="billetes-rapidos" id="billetes-rapidos"></div>
+            <div class="pagos-lista" id="pagos-lista"></div>
+            <div id="cambio"></div>
+
+            <button class="btn-confirm" id="btn-confirmar">CONFIRMAR PAGO <i class="fa-regular fa-circle-check"></i></button>
+          </div>
+
+          <!-- 4. Estado e inventario -->
+          <div>
+            <div class="panel-box">
+              <div class="box-header">
+                <span class="box-title">Estado</span>
+                <button class="icon-btn" id="btn-sincronizar" title="Sincronizar ahora"><i class="fa-solid fa-rotate"></i></button>
+              </div>
+              <div class="estado-lista" id="estado-lista"></div>
+            </div>
+            <div class="panel-box apilado">
+              <div class="box-header"><span class="box-title">Stock bajo</span><span class="badge bajo" id="n-stock-bajo">0</span></div>
+              <div class="lista-compacta" id="lista-stock-bajo"></div>
+            </div>
+            <div class="panel-box apilado">
+              <div class="box-header"><span class="box-title">Últimas ventas</span></div>
+              <div class="lista-compacta" id="ultimas-ventas"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ INVENTARIO ============ -->
+      <section class="view" id="vista-inventario">
+        <div class="pagina-cabecera">
+          <h2>Inventario</h2>
+          <div class="acciones">
+            <input class="input" id="inv-buscar" placeholder="Buscar nombre o PLU" style="width:220px">
+            <label class="check"><input type="checkbox" id="inv-solo-bajo"> Solo stock bajo</label>
+            <label class="check solo-admin"><input type="checkbox" id="inv-inactivos"> Ver inactivos</label>
+            <button class="btn solo-admin" id="btn-nuevo-producto"><i class="fa-solid fa-plus"></i> Nuevo producto</button>
+          </div>
+        </div>
+        <div class="dos-columnas">
+          <div class="panel-box">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>PLU</th><th>Producto</th><th>Categoría</th><th class="num">Precio</th><th class="num">IVA</th><th class="num">Stock</th><th class="num">Mínimo</th><th>Estado</th><th class="solo-admin"></th></tr></thead>
+                <tbody id="tabla-inventario"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel-box">
+            <div class="box-header">
+              <span class="box-title">Recepción de mercancía</span>
+              <button class="btn chico solo-admin" id="btn-nueva-recepcion"><i class="fa-solid fa-truck-ramp-box"></i> Nuevo lote</button>
+            </div>
+            <div id="lista-recepciones"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CLIENTES ============ -->
+      <section class="view" id="vista-clientes">
+        <div class="pagina-cabecera">
+          <h2>Clientes y puntos</h2>
+          <div class="acciones">
+            <input class="input" id="cli-buscar" placeholder="Buscar cédula o nombre" style="width:240px">
+            <button class="btn" id="btn-nuevo-cliente"><i class="fa-solid fa-user-plus"></i> Registrar cliente</button>
+          </div>
+        </div>
+        <div class="panel-box">
+          <p class="muted" id="reglas-puntos" style="margin-bottom:10px"></p>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Cédula</th><th>Nombre</th><th>Teléfono</th><th class="num">Puntos</th><th class="num">Compras</th><th>Registrado</th><th></th></tr></thead>
+              <tbody id="tabla-clientes"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ REPORTES ============ -->
+      <section class="view" id="vista-reportes">
+        <div class="pagina-cabecera">
+          <h2>Reportes</h2>
+          <div class="acciones">
+            <label class="campo">Desde <input type="date" class="input" id="rep-desde"></label>
+            <label class="campo">Hasta <input type="date" class="input" id="rep-hasta"></label>
+            <label class="campo oculto" id="rep-caja-campo">Caja <select class="select" id="rep-caja"><option value="">Todas</option></select></label>
+            <button class="btn" id="btn-rep-ver" style="align-self:flex-end"><i class="fa-solid fa-magnifying-glass-chart"></i> Ver</button>
+          </div>
+        </div>
+        <div class="acciones" style="margin-bottom:15px">
+          <span class="muted">Exportar a CSV (Excel):</span>
+          <button class="btn chico contorno" data-csv="resumen"><i class="fa-solid fa-file-csv"></i> Resumen</button>
+          <button class="btn chico contorno" data-csv="ventas"><i class="fa-solid fa-file-csv"></i> Ventas</button>
+          <button class="btn chico contorno" data-csv="items"><i class="fa-solid fa-file-csv"></i> Productos vendidos</button>
+          <button class="btn chico contorno" data-csv="pagos"><i class="fa-solid fa-file-csv"></i> Pagos</button>
+        </div>
+        <div id="reporte"></div>
+      </section>
+
+      <!-- ============ CONFIGURACIÓN ============ -->
+      <section class="view" id="vista-configuracion">
+        <div class="pagina-cabecera"><h2>Configuración</h2></div>
+        <div class="reportes-grid">
+          <div class="panel-box">
+            <div class="box-header"><span class="box-title">Báscula</span></div>
+            <div class="form-grid" id="form-bascula">
+              <label class="campo">Modo
+                <select class="select" name="bascula_modo">
+                  <option value="simulador">Simulador (sin báscula)</option>
+                  <option value="serial">Báscula real (puerto serie / USB)</option>
+                </select>
+              </label>
+              <label class="campo">Puerto
+                <div style="display:flex;gap:6px">
+                  <input class="input" name="bascula_puerto" list="lista-puertos" placeholder="COM3">
+                  <button class="btn secundario" id="btn-puertos" type="button" title="Buscar puertos"><i class="fa-solid fa-plug"></i></button>
+                </div>
+                <datalist id="lista-puertos"></datalist>
+              </label>
+              <label class="campo">Velocidad (baudios)
+                <select class="select" name="bascula_baudios">
+                  <option>1200</option><option>2400</option><option>4800</option><option>9600</option><option>19200</option><option>38400</option><option>57600</option><option>115200</option>
+                </select>
+              </label>
+              <label class="campo">Bits de datos
+                <select class="select" name="bascula_bits_datos"><option>7</option><option>8</option></select>
+              </label>
+              <label class="campo">Paridad
+                <select class="select" name="bascula_paridad"><option value="none">Ninguna</option><option value="even">Par</option><option value="odd">Impar</option></select>
+              </label>
+              <label class="campo">Bits de parada
+                <select class="select" name="bascula_bits_parada"><option>1</option><option>2</option></select>
+              </label>
+              <label class="campo">Comando para pedir peso (opcional)
+                <input class="input" name="bascula_comando" placeholder="Ej: P  o  W\r">
+              </label>
+              <label class="campo">Pedir peso cada (ms)
+                <input class="input" name="bascula_intervalo_ms" type="number" min="100">
+              </label>
+              <p class="muted ancho">Si tu báscula envía el peso sola (modo continuo), deja el comando vacío. Consulta el manual de la báscula para la velocidad y el comando.</p>
+              <div class="ancho"><button class="btn" id="btn-guardar-bascula"><i class="fa-solid fa-floppy-disk"></i> Guardar y reconectar</button></div>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <div class="box-header"><span class="box-title">Negocio, recibo y puntos</span></div>
+            <div class="form-grid" id="form-negocio">
+              <label class="campo ancho">Nombre del negocio <input class="input" name="negocio_nombre"></label>
+              <label class="campo">NIT <input class="input" name="negocio_nit"></label>
+              <label class="campo">Teléfono <input class="input" name="negocio_telefono"></label>
+              <label class="campo ancho">Dirección <input class="input" name="negocio_direccion"></label>
+              <label class="campo ancho">Mensaje al final del recibo <input class="input" name="recibo_mensaje"></label>
+              <label class="campo">Pesos para ganar 1 punto <input class="input" type="number" min="0" name="pesos_por_punto"></label>
+              <label class="campo">Valor de 1 punto al redimir ($) <input class="input" type="number" min="0" name="valor_punto"></label>
+              <div class="ancho"><button class="btn" id="btn-guardar-negocio"><i class="fa-solid fa-floppy-disk"></i> Guardar</button></div>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <div class="box-header">
+              <span class="box-title">Usuarios</span>
+              <button class="btn chico" id="btn-nuevo-usuario"><i class="fa-solid fa-user-plus"></i> Nuevo</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th></th></tr></thead>
+                <tbody id="tabla-usuarios"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <div class="box-header"><span class="box-title">Historial de tasas</span></div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Fecha</th><th class="num">1 USD</th><th class="num">1 Bs</th><th>Por</th></tr></thead>
+                <tbody id="tabla-tasas"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/compartido/dinero.js"></script>
+  <script src="js/comun.js"></script>
+  <script src="js/app/principal.js"></script>
+  <script src="js/app/ventas.js"></script>
+  <script src="js/app/inventario.js"></script>
+  <script src="js/app/clientes.js"></script>
+  <script src="js/app/reportes.js"></script>
+  <script src="js/app/configuracion.js"></script>
+  <script>App.iniciar();</script>
+</body>
+</html>

@@ -1,0 +1,3729 @@
+<title>AgroPOS</title>
+<meta name="description" content="Demo de AgroPOS, punto de venta para fruver con báscula, cobro multimoneda y puntos.">
+<script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+<style>
+/* ==========================================================
+   AgroPOS - Estilos base (colores, reset, botones, formularios, ventanas)
+   ========================================================== */
+
+:root {
+  --bg-dark: #0f172a;
+  --bg-deep: #0b1120;
+  --panel-bg: #1e293b;
+  --card-bg: #111827;
+  --accent-green: #22c55e;
+  --accent-green-hover: #16a34a;
+  --primary-blue: #3b82f6;
+  --danger: #ef4444;
+  --warning: #eab308;
+  --text-main: #f8fafc;
+  --text-soft: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.muted { color: var(--text-muted); font-size: 0.8rem; }
+.ok    { color: var(--accent-green); }
+.alerta { color: var(--warning); }
+.error-texto { color: var(--danger); }
+.num   { font-variant-numeric: tabular-nums; }
+.oculto { display: none !important; }
+
+/* ---------- Botones ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: var(--accent-green);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) { background: var(--accent-green-hover); }
+.btn.secundario { background: var(--border-color); }
+.btn.secundario:hover:not(:disabled) { background: #475569; }
+.btn.contorno { background: transparent; border-color: var(--border-color); color: var(--text-soft); }
+.btn.contorno:hover:not(:disabled) { border-color: var(--accent-green); background: rgba(34, 197, 94, 0.08); }
+.btn.peligro { background: var(--danger); }
+.btn.peligro:hover:not(:disabled) { background: #dc2626; }
+.btn.chico { padding: 4px 10px; font-size: 0.75rem; }
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.icon-btn:hover { color: var(--text-main); background: rgba(148, 163, 184, 0.1); }
+.icon-btn.borrar:hover { color: var(--danger); }
+
+/* ---------- Formularios ---------- */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.input, .select {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  width: 100%;
+}
+
+.input:focus, .select:focus { border-color: var(--accent-green); }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.form-grid .ancho { grid-column: 1 / -1; }
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+/* ---------- Ventana emergente (modal) ---------- */
+.modal-fondo {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 900;
+}
+
+.modal {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.modal.ancho { max-width: 820px; }
+
+.modal-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 700;
+}
+
+.modal-cuerpo { padding: 18px; }
+
+.modal-pie {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* ---------- Notificaciones (toast) ---------- */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translate(-50%, 20px);
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--primary-blue);
+  color: var(--text-main);
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 1000;
+  max-width: calc(100vw - 32px);
+}
+
+.toast.visible { opacity: 1; transform: translate(-50%, 0); }
+.toast.success { border-left-color: var(--accent-green); }
+.toast.error   { border-left-color: var(--danger); }
+
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================
+   AgroPOS - Pantalla de inicio de sesión
+   ========================================================== */
+
+.login-page {
+  background: radial-gradient(circle at center, #1e3a8a 0%, var(--bg-dark) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 16px 40px;
+  position: relative;
+}
+
+.top-bar-login {
+  position: absolute;
+  top: 20px;
+  left: 30px;
+  right: 30px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.top-bar-login div { display: flex; align-items: center; gap: 15px; }
+
+.login-header { text-align: center; margin-bottom: 25px; }
+
+.login-header h1 {
+  font-size: 2.5rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.login-header h1 i { color: var(--accent-green); }
+
+.login-header h2 { font-size: 1.2rem; font-weight: 500; color: var(--text-soft); margin-top: 8px; }
+.login-header p { color: var(--text-muted); font-size: 0.95rem; margin-top: 4px; }
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 35px 30px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card h3 { text-align: center; font-size: 1.6rem; margin-bottom: 25px; }
+
+.form-group { margin-bottom: 18px; position: relative; }
+
+.form-group i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus { border-color: var(--accent-green); }
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  margin-bottom: 22px;
+  color: var(--text-muted);
+}
+
+.form-options label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+.login-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  min-height: 1.2em;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent-green);
+  border: none;
+  border-radius: 25px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-submit:hover:not(:disabled) { background: var(--accent-green-hover); }
+.btn-submit:active:not(:disabled) { transform: scale(0.98); }
+
+.login-hint {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .top-bar-login { left: 16px; right: 16px; font-size: 0.8rem; }
+  .login-header h1 { font-size: 2rem; }
+  .glass-card { padding: 28px 20px; }
+}
+
+/* ==========================================================
+   AgroPOS - Panel principal
+   ========================================================== */
+
+.app-page { display: flex; }
+
+/* ---------- Barra lateral ---------- */
+.sidebar {
+  width: 70px;
+  flex-shrink: 0;
+  background: var(--card-bg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebar-top, .sidebar-bottom { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+
+.sidebar-icon {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.sidebar-icon.active, .sidebar-icon:hover { color: var(--accent-green); background: rgba(34, 197, 94, 0.1); }
+.sidebar-icon.btn-logout { color: var(--danger); }
+.sidebar-icon.btn-logout:hover { background: rgba(239, 68, 68, 0.1); }
+
+/* ---------- Contenedor y cabecera ---------- */
+.main-container { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--bg-deep); }
+
+.header-nav {
+  height: 60px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  gap: 16px;
+}
+
+.brand-logo { display: flex; align-items: center; gap: 10px; font-size: 1.4rem; font-weight: bold; color: #fff; }
+.brand-logo i { color: var(--accent-green); }
+.brand-logo small { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); border: 1px solid var(--border-color); border-radius: 10px; padding: 1px 8px; }
+
+.nav-tabs { display: flex; gap: 6px; height: 100%; }
+
+.nav-tab {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  color: var(--text-muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav-tab.active { color: #fff; border-bottom-color: var(--accent-green); }
+
+.header-user { display: flex; align-items: center; gap: 18px; font-size: 0.9rem; color: var(--text-muted); }
+.user-profile { display: flex; align-items: center; gap: 8px; }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.pill.ok { color: var(--accent-green); border-color: rgba(34, 197, 94, 0.4); }
+.pill.mal { color: var(--warning); border-color: rgba(234, 179, 8, 0.4); }
+
+/* ---------- Vistas ---------- */
+.main-content { flex: 1; padding: 20px; }
+.view:not(.active) { display: none; }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1.15fr 0.9fr;
+  gap: 15px;
+  align-items: start;
+}
+
+.panel-box {
+  background: var(--panel-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panel-box + .panel-box.apilado { margin-top: 15px; }
+
+.box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
+
+.box-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-soft);
+  text-transform: uppercase;
+}
+
+.subtitulo { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); margin: 14px 0 8px; }
+
+.empty { color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 20px 0; }
+
+/* ---------- Columna 1: productos ---------- */
+.buscador { display: flex; gap: 6px; margin-bottom: 10px; }
+.buscador .input { font-size: 0.85rem; }
+
+.product-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100vh - 230px); padding-right: 2px; }
+
+.product-card {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  width: 100%;
+}
+
+.product-card:hover { border-color: var(--accent-green); }
+
+.product-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+.product-img {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.product-details { min-width: 0; }
+.product-details .name { font-size: 0.85rem; font-weight: 600; }
+.product-details .price { font-size: 0.8rem; color: var(--text-muted); }
+.product-details .plu { font-size: 0.7rem; color: var(--text-muted); }
+
+.btn-add {
+  background: var(--accent-green);
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 4px;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.badge.bajo   { background: rgba(234, 179, 8, 0.15); color: var(--warning); }
+.badge.agotado { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+.badge.bien   { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
+.badge.gris   { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+/* ---------- Columna 2: báscula ---------- */
+.meter-display {
+  background: var(--bg-deep);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.gauge-circle {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 10px solid var(--panel-bg);
+  border-top-color: var(--accent-green);
+  border-right-color: var(--accent-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-45deg);
+  transition: border-color 0.3s;
+}
+
+.gauge-circle.inestable { border-top-color: var(--warning); border-right-color: var(--warning); }
+.gauge-circle.desconectada { border-top-color: var(--danger); border-right-color: var(--danger); }
+
+.gauge-inner { transform: rotate(45deg); text-align: center; }
+.gauge-label { font-size: 0.7rem; color: var(--text-muted); letter-spacing: 1px; }
+.gauge-value { font-size: 2rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+.gauge-unit { font-size: 0.9rem; }
+
+.meter-info { display: flex; gap: 10px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap; justify-content: center; }
+
+.meter-actions { display: flex; gap: 10px; }
+
+.btn-action {
+  flex: 1;
+  padding: 8px;
+  background: var(--accent-green);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-action.secondary { background: var(--border-color); }
+
+.simulador {
+  margin-top: 10px;
+  padding: 8px;
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.simulador-botones { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+
+/* ---------- Columna 2: carrito ---------- */
+.cart-header { margin-top: 18px; }
+
+.cart-items { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.85rem;
+  background: rgba(15, 23, 42, 0.3);
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.cart-item-details { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cart-item-spec { font-size: 0.72rem; color: var(--text-muted); }
+.cart-item-actions { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+
+.qty-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-main);
+  cursor: pointer;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.qty-btn:hover { border-color: var(--accent-green); }
+
+.cart-footer {
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 1.05rem;
+}
+
+/* ---------- Columna 3: cobro ---------- */
+.cliente-box {
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.cliente-box .fila { display: flex; gap: 6px; }
+.cliente-datos { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.puntos { color: var(--warning); font-weight: 700; }
+
+.summary-line { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-muted); }
+.summary-line.total { font-size: 1.1rem; font-weight: bold; color: #fff; border-top: 1px solid var(--border-color); padding-top: 8px; margin-top: 8px; }
+
+.currency-box {
+  margin-top: 10px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.currency-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; gap: 8px; }
+.currency-row small { display: block; color: var(--text-muted); font-size: 0.7rem; }
+
+.currency-value {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--accent-green);
+  padding: 4px 8px;
+  text-align: right;
+  min-width: 110px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.payment-methods { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 8px; }
+
+.pm-btn, .moneda-btn {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.pm-btn.active, .pm-btn:hover, .moneda-btn.active, .moneda-btn:hover {
+  border-color: var(--accent-green);
+  color: #fff;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.pm-btn i { font-size: 1rem; }
+
+.monedas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+.moneda-btn { flex-direction: row; justify-content: center; font-size: 0.75rem; font-weight: 700; padding: 6px; }
+
+.recibido { display: flex; gap: 6px; margin-bottom: 6px; }
+.recibido .input { text-align: right; font-weight: 700; }
+
+.billetes-rapidos { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+
+.pagos-lista { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; font-size: 0.8rem; }
+.pago-item { display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.4); border-radius: 4px; padding: 4px 8px; }
+
+.cambio-box {
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  font-size: 0.85rem;
+}
+
+.cambio-box.falta { background: rgba(234, 179, 8, 0.08); border-color: rgba(234, 179, 8, 0.3); }
+.cambio-monto { font-size: 1.3rem; font-weight: 800; }
+
+.desglose { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.desglose span { font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; background: var(--card-bg); border: 1px solid var(--border-color); }
+.desglose span.moneda { border-radius: 10px; }
+
+.btn-confirm {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent-green);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-confirm:hover:not(:disabled) { background: var(--accent-green-hover); }
+
+.tasa-linea { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; }
+
+/* ---------- Columna 4: estado ---------- */
+.estado-lista { display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; }
+
+.estado-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.estado-item i.fa-circle { font-size: 0.55rem; margin-top: 6px; }
+.estado-item .titulo { font-weight: 600; }
+.estado-item .detalle { font-size: 0.72rem; color: var(--text-muted); }
+
+.lista-compacta { display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem; }
+.lista-compacta .fila { display: flex; justify-content: space-between; gap: 8px; padding: 6px 8px; border-radius: 6px; background: rgba(15, 23, 42, 0.3); }
+
+/* ---------- Tablas y páginas ---------- */
+.pagina-cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap; }
+.pagina-cabecera h2 { font-size: 1.2rem; }
+.acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+.table-wrap { overflow-x: auto; }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+
+.data-table th, .data-table td {
+  padding: 9px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.data-table th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.5px; }
+.data-table .num { text-align: right; }
+.data-table tbody tr:hover { background: rgba(15, 23, 42, 0.4); }
+
+.dos-columnas { display: grid; grid-template-columns: 1.4fr 1fr; gap: 15px; align-items: start; }
+
+.lote-card {
+  background: rgba(15, 23, 42, 0.4);
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.lote-card .lote-title { color: var(--accent-green); margin-bottom: 4px; font-weight: 600; }
+
+.renglon-lote { display: grid; grid-template-columns: 2fr 1fr 1fr 1.2fr auto; gap: 6px; margin-bottom: 6px; align-items: center; }
+
+/* ---------- Reportes ---------- */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px; }
+
+.kpi { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; }
+.kpi .etiqueta { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.kpi .valor { font-size: 1.5rem; font-weight: 800; margin: 4px 0; font-variant-numeric: tabular-nums; }
+.kpi .nota { font-size: 0.72rem; color: var(--text-muted); }
+
+.reportes-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+
+.barra { height: 6px; border-radius: 3px; background: var(--card-bg); overflow: hidden; margin-top: 4px; }
+.barra div { height: 100%; background: var(--accent-green); }
+
+/* ---------- Adaptable ---------- */
+@media (max-width: 1400px) {
+  .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+  .product-list { max-height: 460px; }
+}
+
+@media (max-width: 1000px) {
+  .dos-columnas, .reportes-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 800px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .nav-tabs, #reloj { display: none; }
+  .header-nav { padding: 0 16px; }
+  .main-content { padding: 16px; }
+  .sidebar { width: 56px; }
+  .sidebar-icon { width: 40px; height: 40px; font-size: 1.1rem; }
+  .renglon-lote { grid-template-columns: 1fr 1fr; }
+}
+
+/* ==========================================================
+   AgroPOS DEMO - ajustes para que las dos pantallas vivan en una sola página
+   ========================================================== */
+
+/* AgroPOS tiene un solo tema oscuro (azul marino y verde). */
+:root { color-scheme: dark; }
+html, body { background: var(--bg-dark); }
+
+.login-page { min-height: 100vh; }
+.app-page { min-height: 100vh; }
+
+/* Los íconos se dibujan como SVG dentro de cada <i>. */
+i[class*="fa-"] { display: inline-block; line-height: 1; }
+i[class*="fa-"] svg { width: 1em; height: 1em; vertical-align: -0.125em; }
+
+/* ---------- Control de la demo ---------- */
+.demo-control {
+  position: fixed;
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.5);
+  z-index: 800;
+  font-size: 0.75rem;
+}
+
+.demo-etiqueta {
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--warning);
+  padding: 0 6px;
+}
+
+.demo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-soft);
+  border-radius: 6px;
+  padding: 5px 9px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.demo-btn:hover { border-color: var(--accent-green); }
+.demo-btn:focus-visible, .btn:focus-visible, .product-card:focus-visible { outline: 2px solid var(--accent-green); outline-offset: 2px; }
+.demo-btn.en-linea { color: var(--accent-green); }
+.demo-btn.sin-linea { color: var(--warning); border-color: rgba(234, 179, 8, 0.5); }
+
+/* ---------- Recibo en ventana ---------- */
+.recibo-demo {
+  background: #fff;
+  color: #000;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  max-width: 80mm;
+  margin: 0 auto;
+  padding: 14px 12px;
+  border-radius: 4px;
+}
+
+.recibo-demo .r-fila { display: flex; justify-content: space-between; gap: 6px; }
+.recibo-demo .r-fila span:last-child { text-align: right; white-space: nowrap; }
+.recibo-demo .r-centro { text-align: center; }
+.recibo-demo .r-negrita { font-weight: bold; }
+.recibo-demo .r-grande { font-size: 15px; }
+.recibo-demo .r-chico { font-size: 10px; }
+.recibo-demo .r-sep { border-top: 1px dashed #000; margin: 6px 0; }
+
+/* ---------- Pantallas angostas (celular) ---------- */
+@media (max-width: 600px) {
+  .header-user .user-profile span, .brand-logo small { display: none; }
+  .header-nav { gap: 8px; }
+  .demo-etiqueta { display: none; }
+  .payment-methods { grid-template-columns: repeat(2, 1fr); }
+  .data-table th, .data-table td { padding: 8px; }
+  .acciones .input { width: 100% !important; }
+}
+
+</style>
+
+<div id="pantalla-login" class="login-page">
+<div class="top-bar-login">
+    <div><span><i class="fa-solid fa-seedling"></i> AgroPOS 1.0</span></div>
+    <div>
+      <span id="reloj-login"></span>
+      <span><i class="fa-solid fa-globe"></i> Español</span>
+    </div>
+  </div>
+
+  <div class="login-header">
+    <h1><i class="fa-solid fa-seedling"></i> AgroPOS</h1>
+    <h2>Punto de venta para fruver</h2>
+    <p>Báscula · Pesos, dólares y bolívares · Funciona sin internet</p>
+  </div>
+
+  <div class="glass-card">
+    <h3>Iniciar sesión</h3>
+
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <i class="fa-regular fa-user"></i>
+        <input type="email" name="correo" class="form-control" value="admin@agropos.com" placeholder="Correo electrónico"
+               autocomplete="username" required>
+      </div>
+
+      <div class="form-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" name="clave" class="form-control" value="admin123" placeholder="Contraseña"
+               autocomplete="current-password" required>
+      </div>
+
+      <div class="form-options">
+        <label><input type="checkbox" name="recordar"> Recordarme en este equipo</label>
+      </div>
+
+      <p class="login-error" id="login-error" role="alert"></p>
+
+      <button type="submit" class="btn-submit" id="btn-login">INICIAR SESIÓN</button>
+    </form>
+
+    <p class="login-hint">
+      Usuarios de ejemplo:<br>
+      Administrador: admin@agropos.com / admin123<br>
+      Cajero: cajero@agropos.com / cajero123
+    </p>
+  </div>
+</div>
+
+<div id="pantalla-app" class="app-page" hidden>
+<!-- Barra lateral -->
+  <nav class="sidebar">
+    <div class="sidebar-top">
+      <button class="sidebar-icon active" data-vista="ventas" title="Panel de ventas"><i class="fa-solid fa-cash-register"></i></button>
+      <button class="sidebar-icon" data-vista="inventario" title="Inventario"><i class="fa-solid fa-box-archive"></i></button>
+      <button class="sidebar-icon" data-vista="clientes" title="Clientes"><i class="fa-solid fa-users"></i></button>
+      <button class="sidebar-icon solo-admin" data-vista="reportes" title="Reportes"><i class="fa-solid fa-chart-column"></i></button>
+      <button class="sidebar-icon solo-admin" data-vista="configuracion" title="Configuración"><i class="fa-solid fa-gear"></i></button>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="sidebar-icon btn-logout" id="btn-salir" title="Cerrar sesión"><i class="fa-solid fa-power-off"></i></button>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    <header class="header-nav">
+      <div class="brand-logo"><i class="fa-solid fa-seedling"></i> AgroPOS <small id="etiqueta-caja"></small></div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-vista="ventas">Panel de ventas</button>
+        <button class="nav-tab" data-vista="inventario">Inventario</button>
+        <button class="nav-tab" data-vista="clientes">Clientes</button>
+        <button class="nav-tab solo-admin" data-vista="reportes">Reportes</button>
+      </div>
+      <div class="header-user">
+        <span class="pill" id="pill-nube"><i class="fa-solid fa-cloud"></i> <span>…</span></span>
+        <span id="reloj"></span>
+        <div class="user-profile">
+          <i class="fa-regular fa-user"></i>
+          <span id="usuario-nombre"></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <!-- ============ VENTAS ============ -->
+      <section class="view active" id="vista-ventas">
+        <div class="dashboard-grid">
+
+          <!-- 1. Productos -->
+          <div class="panel-box">
+            <div class="box-header">
+              <span class="box-title">Productos</span>
+              <select class="select" id="filtro-categoria" style="width:auto;font-size:0.8rem;padding:4px 8px"></select>
+            </div>
+            <div class="buscador">
+              <input class="input" id="buscar-producto" placeholder="Buscar por nombre o PLU (F2)" autocomplete="off">
+            </div>
+            <div class="product-list" id="lista-productos"></div>
+          </div>
+
+          <!-- 2. Báscula y carrito -->
+          <div class="panel-box">
+            <div class="box-header">
+              <span class="box-title">Báscula digital</span>
+              <span class="pill" id="pill-bascula">…</span>
+            </div>
+            <div class="meter-display">
+              <div class="gauge-circle" id="gauge">
+                <div class="gauge-inner">
+                  <div class="gauge-label">PESO NETO</div>
+                  <div class="gauge-value" id="peso-valor">0.000</div>
+                  <div class="gauge-unit">KG</div>
+                </div>
+              </div>
+              <div class="meter-info">
+                <span id="peso-estable">—</span>
+                <span id="peso-tara"></span>
+              </div>
+            </div>
+            <div class="meter-actions">
+              <button class="btn-action" id="btn-cero">CERO</button>
+              <button class="btn-action secondary" id="btn-tara">TARA</button>
+            </div>
+            <div class="simulador oculto" id="simulador">
+              <i class="fa-solid fa-flask"></i> Simulador (para probar sin báscula): poner en el plato…
+              <div class="simulador-botones">
+                <button class="btn chico secundario" data-sim="0.25">250 g</button>
+                <button class="btn chico secundario" data-sim="0.5">500 g</button>
+                <button class="btn chico secundario" data-sim="1">1 kg</button>
+                <button class="btn chico secundario" data-sim="2.5">2,5 kg</button>
+                <button class="btn chico secundario" data-sim="azar">Al azar</button>
+                <button class="btn chico contorno" data-sim="0">Retirar</button>
+              </div>
+            </div>
+
+            <div class="box-header cart-header">
+              <span class="box-title" id="titulo-carrito">Carrito de venta (0)</span>
+              <button class="icon-btn borrar" id="btn-vaciar" title="Vaciar carrito"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div class="cart-items" id="carrito"></div>
+            <div class="cart-footer"><span>TOTAL</span><span id="carrito-total">$0</span></div>
+          </div>
+
+          <!-- 3. Cobro -->
+          <div class="panel-box">
+            <div class="box-header"><span class="box-title">Cobro multimoneda</span></div>
+
+            <div class="cliente-box">
+              <div class="fila">
+                <input class="input" id="cedula" placeholder="Cédula del cliente (puntos)" inputmode="numeric" autocomplete="off">
+                <button class="btn secundario" id="btn-buscar-cliente" title="Buscar"><i class="fa-solid fa-magnifying-glass"></i></button>
+              </div>
+              <div id="cliente-info"></div>
+            </div>
+
+            <div class="summary-line"><span>Total productos</span><span id="res-bruto">$0</span></div>
+            <div class="summary-line" id="linea-descuento"><span>Descuento por puntos</span><span id="res-descuento">$0</span></div>
+            <div class="summary-line"><span>IVA incluido</span><span id="res-iva">$0</span></div>
+            <div class="summary-line"><span>Redondeo (a $50)</span><span id="res-redondeo">$0</span></div>
+            <div class="summary-line total"><span>TOTAL A PAGAR</span><span id="res-total">$0</span></div>
+
+            <div class="currency-box">
+              <div class="currency-row"><span><i class="fa-solid fa-coins" style="color:#eab308"></i> Pesos</span><span class="currency-value" id="eq-cop">$0</span></div>
+              <div class="currency-row"><span><i class="fa-solid fa-dollar-sign" style="color:#3b82f6"></i> Dólares</span><span class="currency-value" id="eq-usd">US$0,00</span></div>
+              <div class="currency-row"><span><i class="fa-solid fa-money-bill" style="color:#22c55e"></i> Bolívares</span><span class="currency-value" id="eq-ves">Bs 0,00</span></div>
+            </div>
+            <div class="tasa-linea">
+              <span id="tasa-texto">Tasa del día: …</span>
+              <button class="btn chico contorno solo-admin" id="btn-tasa"><i class="fa-solid fa-pen"></i> Tasa</button>
+            </div>
+
+            <div class="payment-methods" id="metodos"></div>
+            <div class="monedas" id="monedas"></div>
+            <div class="recibido">
+              <input class="input" id="monto-recibido" placeholder="Recibido" inputmode="decimal" autocomplete="off">
+              <button class="btn secundario" id="btn-agregar-pago" title="Agregar pago (para pagos mixtos)"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <div class="billetes-rapidos" id="billetes-rapidos"></div>
+            <div class="pagos-lista" id="pagos-lista"></div>
+            <div id="cambio"></div>
+
+            <button class="btn-confirm" id="btn-confirmar">CONFIRMAR PAGO <i class="fa-regular fa-circle-check"></i></button>
+          </div>
+
+          <!-- 4. Estado e inventario -->
+          <div>
+            <div class="panel-box">
+              <div class="box-header">
+                <span class="box-title">Estado</span>
+                <button class="icon-btn" id="btn-sincronizar" title="Sincronizar ahora"><i class="fa-solid fa-rotate"></i></button>
+              </div>
+              <div class="estado-lista" id="estado-lista"></div>
+            </div>
+            <div class="panel-box apilado">
+              <div class="box-header"><span class="box-title">Stock bajo</span><span class="badge bajo" id="n-stock-bajo">0</span></div>
+              <div class="lista-compacta" id="lista-stock-bajo"></div>
+            </div>
+            <div class="panel-box apilado">
+              <div class="box-header"><span class="box-title">Últimas ventas</span></div>
+              <div class="lista-compacta" id="ultimas-ventas"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ INVENTARIO ============ -->
+      <section class="view" id="vista-inventario">
+        <div class="pagina-cabecera">
+          <h2>Inventario</h2>
+          <div class="acciones">
+            <input class="input" id="inv-buscar" placeholder="Buscar nombre o PLU" style="width:220px">
+            <label class="check"><input type="checkbox" id="inv-solo-bajo"> Solo stock bajo</label>
+            <label class="check solo-admin"><input type="checkbox" id="inv-inactivos"> Ver inactivos</label>
+            <button class="btn solo-admin" id="btn-nuevo-producto"><i class="fa-solid fa-plus"></i> Nuevo producto</button>
+          </div>
+        </div>
+        <div class="dos-columnas">
+          <div class="panel-box">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>PLU</th><th>Producto</th><th>Categoría</th><th class="num">Precio</th><th class="num">IVA</th><th class="num">Stock</th><th class="num">Mínimo</th><th>Estado</th><th class="solo-admin"></th></tr></thead>
+                <tbody id="tabla-inventario"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel-box">
+            <div class="box-header">
+              <span class="box-title">Recepción de mercancía</span>
+              <button class="btn chico solo-admin" id="btn-nueva-recepcion"><i class="fa-solid fa-truck-ramp-box"></i> Nuevo lote</button>
+            </div>
+            <div id="lista-recepciones"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CLIENTES ============ -->
+      <section class="view" id="vista-clientes">
+        <div class="pagina-cabecera">
+          <h2>Clientes y puntos</h2>
+          <div class="acciones">
+            <input class="input" id="cli-buscar" placeholder="Buscar cédula o nombre" style="width:240px">
+            <button class="btn" id="btn-nuevo-cliente"><i class="fa-solid fa-user-plus"></i> Registrar cliente</button>
+          </div>
+        </div>
+        <div class="panel-box">
+          <p class="muted" id="reglas-puntos" style="margin-bottom:10px"></p>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Cédula</th><th>Nombre</th><th>Teléfono</th><th class="num">Puntos</th><th class="num">Compras</th><th>Registrado</th><th></th></tr></thead>
+              <tbody id="tabla-clientes"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ REPORTES ============ -->
+      <section class="view" id="vista-reportes">
+        <div class="pagina-cabecera">
+          <h2>Reportes</h2>
+          <div class="acciones">
+            <label class="campo">Desde <input type="date" class="input" id="rep-desde"></label>
+            <label class="campo">Hasta <input type="date" class="input" id="rep-hasta"></label>
+            <label class="campo oculto" id="rep-caja-campo">Caja <select class="select" id="rep-caja"><option value="">Todas</option></select></label>
+            <button class="btn" id="btn-rep-ver" style="align-self:flex-end"><i class="fa-solid fa-magnifying-glass-chart"></i> Ver</button>
+          </div>
+        </div>
+        <div class="acciones" style="margin-bottom:15px">
+          <span class="muted">Exportar a CSV (Excel):</span>
+          <button class="btn chico contorno" data-csv="resumen"><i class="fa-solid fa-file-csv"></i> Resumen</button>
+          <button class="btn chico contorno" data-csv="ventas"><i class="fa-solid fa-file-csv"></i> Ventas</button>
+          <button class="btn chico contorno" data-csv="items"><i class="fa-solid fa-file-csv"></i> Productos vendidos</button>
+          <button class="btn chico contorno" data-csv="pagos"><i class="fa-solid fa-file-csv"></i> Pagos</button>
+        </div>
+        <div id="reporte"></div>
+      </section>
+
+      <!-- ============ CONFIGURACIÓN ============ -->
+      <section class="view" id="vista-configuracion">
+        <div class="pagina-cabecera"><h2>Configuración</h2></div>
+        <div class="reportes-grid">
+          <div class="panel-box">
+            <div class="box-header"><span class="box-title">Báscula</span></div>
+            <div class="form-grid" id="form-bascula">
+              <label class="campo">Modo
+                <select class="select" name="bascula_modo">
+                  <option value="simulador">Simulador (sin báscula)</option>
+                  <option value="serial">Báscula real (puerto serie / USB)</option>
+                </select>
+              </label>
+              <label class="campo">Puerto
+                <div style="display:flex;gap:6px">
+                  <input class="input" name="bascula_puerto" list="lista-puertos" placeholder="COM3">
+                  <button class="btn secundario" id="btn-puertos" type="button" title="Buscar puertos"><i class="fa-solid fa-plug"></i></button>
+                </div>
+                <datalist id="lista-puertos"></datalist>
+              </label>
+              <label class="campo">Velocidad (baudios)
+                <select class="select" name="bascula_baudios">
+                  <option>1200</option><option>2400</option><option>4800</option><option>9600</option><option>19200</option><option>38400</option><option>57600</option><option>115200</option>
+                </select>
+              </label>
+              <label class="campo">Bits de datos
+                <select class="select" name="bascula_bits_datos"><option>7</option><option>8</option></select>
+              </label>
+              <label class="campo">Paridad
+                <select class="select" name="bascula_paridad"><option value="none">Ninguna</option><option value="even">Par</option><option value="odd">Impar</option></select>
+              </label>
+              <label class="campo">Bits de parada
+                <select class="select" name="bascula_bits_parada"><option>1</option><option>2</option></select>
+              </label>
+              <label class="campo">Comando para pedir peso (opcional)
+                <input class="input" name="bascula_comando" placeholder="Ej: P  o  W\r">
+              </label>
+              <label class="campo">Pedir peso cada (ms)
+                <input class="input" name="bascula_intervalo_ms" type="number" min="100">
+              </label>
+              <p class="muted ancho">Si tu báscula envía el peso sola (modo continuo), deja el comando vacío. Consulta el manual de la báscula para la velocidad y el comando.</p>
+              <div class="ancho"><button class="btn" id="btn-guardar-bascula"><i class="fa-solid fa-floppy-disk"></i> Guardar y reconectar</button></div>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <div class="box-header"><span class="box-title">Negocio, recibo y puntos</span></div>
+            <div class="form-grid" id="form-negocio">
+              <label class="campo ancho">Nombre del negocio <input class="input" name="negocio_nombre"></label>
+              <label class="campo">NIT <input class="input" name="negocio_nit"></label>
+              <label class="campo">Teléfono <input class="input" name="negocio_telefono"></label>
+              <label class="campo ancho">Dirección <input class="input" name="negocio_direccion"></label>
+              <label class="campo ancho">Mensaje al final del recibo <input class="input" name="recibo_mensaje"></label>
+              <label class="campo">Pesos para ganar 1 punto <input class="input" type="number" min="0" name="pesos_por_punto"></label>
+              <label class="campo">Valor de 1 punto al redimir ($) <input class="input" type="number" min="0" name="valor_punto"></label>
+              <div class="ancho"><button class="btn" id="btn-guardar-negocio"><i class="fa-solid fa-floppy-disk"></i> Guardar</button></div>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <div class="box-header">
+              <span class="box-title">Usuarios</span>
+              <button class="btn chico" id="btn-nuevo-usuario"><i class="fa-solid fa-user-plus"></i> Nuevo</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th></th></tr></thead>
+                <tbody id="tabla-usuarios"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <div class="box-header"><span class="box-title">Historial de tasas</span></div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Fecha</th><th class="num">1 USD</th><th class="num">1 Bs</th><th>Por</th></tr></thead>
+                <tbody id="tabla-tasas"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div id="demo-control" class="demo-control"></div>
+
+<script>
+// Cálculos de dinero compartidos por el servidor (Node) y el navegador.
+// El servidor lo publica en /js/compartido/dinero.js para que ambos calculen igual.
+(function (raiz, fabrica) {
+  if (typeof module === 'object' && module.exports) module.exports = fabrica();
+  else raiz.Dinero = fabrica();
+})(typeof self !== 'undefined' ? self : this, function () {
+  const MULTIPLO = 50;
+
+  // Billetes y monedas colombianos en circulación.
+  const DENOMINACIONES = [
+    { valor: 100000, tipo: 'billete' },
+    { valor: 50000, tipo: 'billete' },
+    { valor: 20000, tipo: 'billete' },
+    { valor: 10000, tipo: 'billete' },
+    { valor: 5000, tipo: 'billete' },
+    { valor: 2000, tipo: 'billete' },
+    { valor: 1000, tipo: 'moneda' },
+    { valor: 500, tipo: 'moneda' },
+    { valor: 200, tipo: 'moneda' },
+    { valor: 100, tipo: 'moneda' },
+    { valor: 50, tipo: 'moneda' },
+  ];
+
+  const MONEDAS = ['COP', 'USD', 'VES'];
+  const METODOS = ['efectivo', 'tarjeta', 'transferencia', 'digital'];
+
+  // Redondeo comercial: al múltiplo de 50 más cercano.
+  function redondearComercial(valor) {
+    return Math.round(Number(valor) / MULTIPLO) * MULTIPLO;
+  }
+
+  function desglosar(monto) {
+    let resto = redondearComercial(monto);
+    const partes = [];
+    for (const d of DENOMINACIONES) {
+      const cantidad = Math.floor(resto / d.valor);
+      if (cantidad > 0) {
+        partes.push({ valor: d.valor, tipo: d.tipo, cantidad });
+        resto -= cantidad * d.valor;
+      }
+    }
+    return partes;
+  }
+
+  // tasas = { USD: pesos por dólar, VES: pesos por bolívar }
+  function tasaDe(moneda, tasas) {
+    if (moneda === 'COP') return 1;
+    const tasa = Number(tasas && tasas[moneda]);
+    return tasa > 0 ? tasa : 0;
+  }
+
+  function aPesos(monto, moneda, tasas) {
+    return Math.round(Number(monto) * tasaDe(moneda, tasas));
+  }
+
+  function dePesos(pesos, moneda, tasas) {
+    const tasa = tasaDe(moneda, tasas);
+    if (!tasa) return 0;
+    return Math.round((Number(pesos) / tasa) * 100) / 100;
+  }
+
+  // lineas: [{ precio, cantidad, iva }] → totales de la venta.
+  function calcularVenta(lineas, descuento) {
+    let totalBruto = 0;
+    let iva = 0;
+    const detalle = lineas.map(function (l) {
+      const total = Math.round(Number(l.precio) * Number(l.cantidad));
+      const ivaLinea = Number(l.iva) > 0 ? total - total / (1 + Number(l.iva) / 100) : 0;
+      totalBruto += total;
+      iva += ivaLinea;
+      return Object.assign({}, l, { total: total });
+    });
+    const desc = Math.min(Math.max(0, Math.round(Number(descuento) || 0)), totalBruto);
+    const aPagar = totalBruto - desc;
+    if (totalBruto > 0) iva = iva * (aPagar / totalBruto);
+    const total = redondearComercial(aPagar);
+    const ivaRedondeado = Math.round(iva);
+    return {
+      lineas: detalle,
+      total_bruto: totalBruto,
+      descuento: desc,
+      subtotal: aPagar - ivaRedondeado,
+      iva: ivaRedondeado,
+      redondeo: total - aPagar,
+      total: total,
+    };
+  }
+
+  // pagos: [{ metodo, moneda, monto }] → cuánto se pagó, cuánto falta y el cambio.
+  function calcularCobro(total, pagos, tasas) {
+    const errores = [];
+    let pagado = 0;
+    let efectivo = 0;
+    let otros = 0;
+    const detalle = (pagos || []).map(function (p) {
+      const tasa = tasaDe(p.moneda, tasas);
+      if (MONEDAS.indexOf(p.moneda) < 0) errores.push('Moneda no válida: ' + p.moneda);
+      else if (!tasa) errores.push('Falta la tasa del día para ' + p.moneda);
+      if (METODOS.indexOf(p.metodo) < 0) errores.push('Método de pago no válido: ' + p.metodo);
+      const monto = Number(p.monto);
+      if (!(monto > 0)) errores.push('Cada pago debe tener un monto mayor que cero');
+      const cop = Math.round((monto || 0) * tasa);
+      pagado += cop;
+      if (p.metodo === 'efectivo') efectivo += cop;
+      else otros += cop;
+      return { metodo: p.metodo, moneda: p.moneda, monto: monto, tasa: tasa, monto_cop: cop };
+    });
+
+    const diferencia = redondearComercial(pagado - total);
+    const falta = diferencia < 0 ? -diferencia : 0;
+    const cambio = diferencia > 0 ? diferencia : 0;
+    // Se tolera la diferencia de redondeo al convertir (ej. el total en centavos de dólar).
+    if (redondearComercial(otros - total) > 0) {
+      errores.push('Tarjeta, transferencia y pago digital no pueden superar el total (no dan cambio).');
+    }
+    if (cambio > efectivo) {
+      errores.push('El cambio no puede ser mayor que el efectivo recibido.');
+    }
+    return {
+      pagos: detalle,
+      pagado_cop: pagado,
+      falta: falta,
+      cambio: cambio,
+      desglose: desglosar(cambio),
+      completo: falta === 0 && errores.length === 0 && detalle.length > 0,
+      errores: errores,
+    };
+  }
+
+  return {
+    MULTIPLO: MULTIPLO,
+    DENOMINACIONES: DENOMINACIONES,
+    MONEDAS: MONEDAS,
+    METODOS: METODOS,
+    redondearComercial: redondearComercial,
+    desglosar: desglosar,
+    tasaDe: tasaDe,
+    aPesos: aPesos,
+    dePesos: dePesos,
+    calcularVenta: calcularVenta,
+    calcularCobro: calcularCobro,
+  };
+});
+
+</script>
+<script>
+// Utilidades compartidas por todas las páginas: sesión, API, formatos y ventanas.
+
+// ---------- Sesión ----------
+const Sesion = {
+  CLAVE: 'agropos_sesion',
+
+  guardar(datos, recordar) {
+    const texto = JSON.stringify(datos);
+    (recordar ? localStorage : sessionStorage).setItem(this.CLAVE, texto);
+    (recordar ? sessionStorage : localStorage).removeItem(this.CLAVE);
+  },
+
+  obtener() {
+    try {
+      const texto = sessionStorage.getItem(this.CLAVE) || localStorage.getItem(this.CLAVE);
+      return texto ? JSON.parse(texto) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  cerrar() {
+    sessionStorage.removeItem(this.CLAVE);
+    localStorage.removeItem(this.CLAVE);
+  },
+
+  get token() { return this.obtener()?.token; },
+  get usuario() { return this.obtener()?.usuario; },
+  get esAdmin() { return this.usuario?.rol === 'admin'; },
+};
+
+// ---------- API ----------
+const Api = {
+  async pedir(ruta, { metodo = 'GET', cuerpo } = {}) {
+    let resp;
+    try {
+      resp = await fetch('/api' + ruta, {
+        method: metodo,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(Sesion.token ? { Authorization: 'Bearer ' + Sesion.token } : {}),
+        },
+        body: cuerpo !== undefined ? JSON.stringify(cuerpo) : undefined,
+      });
+    } catch {
+      throw new Error('No hay conexión con el servidor de AgroPOS. ¿Está abierto?');
+    }
+    const datos = await resp.json().catch(() => ({}));
+    if (resp.status === 401 && !ruta.startsWith('/auth/login')) {
+      Sesion.cerrar();
+      Demo.ir('login');
+      throw new Error(datos.error || 'Sesión vencida');
+    }
+    if (!resp.ok) throw new Error(datos.error || `Error ${resp.status}`);
+    return datos;
+  },
+
+  get(ruta) { return this.pedir(ruta); },
+  post(ruta, cuerpo) { return this.pedir(ruta, { metodo: 'POST', cuerpo: cuerpo || {} }); },
+  put(ruta, cuerpo) { return this.pedir(ruta, { metodo: 'PUT', cuerpo }); },
+
+  // Descarga un archivo (CSV) que requiere sesión.
+  async descargar(ruta) {
+    const resp = await fetch('/api' + ruta, { headers: { Authorization: 'Bearer ' + Sesion.token } });
+    if (!resp.ok) {
+      const datos = await resp.json().catch(() => ({}));
+      throw new Error(datos.error || 'No se pudo descargar');
+    }
+    const nombre = /filename="([^"]+)"/.exec(resp.headers.get('content-disposition') || '')?.[1] || 'reporte.csv';
+    const url = URL.createObjectURL(await resp.blob());
+    const enlace = Object.assign(document.createElement('a'), { href: url, download: nombre });
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  },
+};
+
+// ---------- Formatos ----------
+const Formato = {
+  pesos(valor) {
+    return '$' + Math.round(Number(valor) || 0).toLocaleString('es-CO');
+  },
+  moneda(valor, moneda) {
+    if (moneda === 'COP') return this.pesos(valor);
+    const num = (Number(valor) || 0).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return moneda === 'USD' ? `US$${num}` : `Bs ${num}`;
+  },
+  kg(valor) {
+    return (Number(valor) || 0).toLocaleString('es-CO', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + ' kg';
+  },
+  numero(valor, decimales = 0) {
+    return (Number(valor) || 0).toLocaleString('es-CO', { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
+  },
+  cantidad(valor, unidad) {
+    return unidad === 'kg' ? this.kg(valor) : `${this.numero(valor)} und`;
+  },
+  duracion(segundos) {
+    if (segundos === null || segundos === undefined) return '—';
+    const s = Math.round(segundos);
+    return s < 60 ? `${s} s` : `${Math.floor(s / 60)} min ${s % 60} s`;
+  },
+  fecha(texto) {
+    if (!texto) return '—';
+    const d = new Date(texto.replace(' ', 'T'));
+    return isNaN(d) ? texto : d.toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' });
+  },
+  hoy() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  },
+  // Convierte "12.500,50" o "12500.5" en número.
+  leerNumero(texto) {
+    let t = String(texto ?? '').trim().replace(/[^\d.,-]/g, '');
+    if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+    const n = parseFloat(t);
+    return Number.isFinite(n) ? n : 0;
+  },
+};
+
+const METODOS = {
+  efectivo: { nombre: 'Efectivo', icono: 'fa-money-bill-wave' },
+  tarjeta: { nombre: 'Tarjeta', icono: 'fa-credit-card' },
+  transferencia: { nombre: 'Transferencia', icono: 'fa-building-columns' },
+  digital: { nombre: 'Pago digital', icono: 'fa-mobile-screen' },
+};
+
+const NOMBRE_MONEDA = { COP: 'Pesos (COP)', USD: 'Dólares (USD)', VES: 'Bolívares (VES)' };
+
+// ---------- Interfaz ----------
+const UI = {
+  escapar(texto) {
+    return String(texto ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  },
+
+  toast(mensaje, tipo = 'info') {
+    let el = document.getElementById('toast');
+    if (!el) {
+      el = Object.assign(document.createElement('div'), { id: 'toast', className: 'toast' });
+      el.setAttribute('role', 'status');
+      document.body.appendChild(el);
+    }
+    el.textContent = mensaje;
+    el.className = `toast visible ${tipo}`;
+    clearTimeout(this._timerToast);
+    this._timerToast = setTimeout(() => el.classList.remove('visible'), tipo === 'error' ? 5000 : 3000);
+  },
+
+  error(e) {
+    this.toast(e?.message || String(e), 'error');
+  },
+
+  // Abre una ventana emergente. "botones" = [{ texto, clase, accion(modal) → true para cerrar }]
+  modal({ titulo, html, botones = [], ancho = false, alAbrir }) {
+    const fondo = document.createElement('div');
+    fondo.className = 'modal-fondo';
+    fondo.innerHTML = `
+      <div class="modal ${ancho ? 'ancho' : ''}" role="dialog" aria-modal="true">
+        <div class="modal-cabecera"><span>${titulo}</span>
+          <button class="icon-btn" data-cerrar title="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="modal-cuerpo">${html}</div>
+        ${botones.length ? '<div class="modal-pie"></div>' : ''}
+      </div>`;
+    const cerrar = () => {
+      fondo.remove();
+      document.removeEventListener('keydown', teclas);
+    };
+    const teclas = (e) => { if (e.key === 'Escape') cerrar(); };
+    const modal = { el: fondo.querySelector('.modal'), cerrar };
+    fondo.querySelector('[data-cerrar]').onclick = cerrar;
+    fondo.addEventListener('mousedown', (e) => { if (e.target === fondo) cerrar(); });
+    document.addEventListener('keydown', teclas);
+    const pie = fondo.querySelector('.modal-pie');
+    for (const b of botones) {
+      const btn = document.createElement('button');
+      btn.className = `btn ${b.clase || ''}`;
+      btn.innerHTML = b.texto;
+      btn.onclick = async () => {
+        if (!b.accion) return cerrar();
+        btn.disabled = true;
+        try {
+          if (await b.accion(modal)) cerrar();
+        } catch (e) {
+          UI.error(e);
+        } finally {
+          btn.disabled = false;
+        }
+      };
+      pie.appendChild(btn);
+    }
+    document.body.appendChild(fondo);
+    const primero = fondo.querySelector('input, select, textarea');
+    if (primero) primero.focus();
+    if (alAbrir) alAbrir(modal);
+    return modal;
+  },
+
+  confirmar(titulo, mensaje) {
+    return new Promise((resolver) => {
+      const m = UI.modal({
+        titulo,
+        html: `<p>${mensaje}</p>`,
+        botones: [
+          { texto: 'Cancelar', clase: 'secundario', accion: () => { resolver(false); return true; } },
+          { texto: 'Aceptar', accion: () => { resolver(true); return true; } },
+        ],
+      });
+      m.el.closest('.modal-fondo').querySelector('[data-cerrar]').addEventListener('click', () => resolver(false));
+    });
+  },
+
+  // Lee los campos con atributo name de un contenedor.
+  datosFormulario(contenedor) {
+    const datos = {};
+    contenedor.querySelectorAll('[name]').forEach((el) => {
+      datos[el.name] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    return datos;
+  },
+
+  reloj(el) {
+    const pintar = () => {
+      el.textContent = new Date().toLocaleString('es-CO', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    };
+    pintar();
+    setInterval(pintar, 15000);
+  },
+};
+
+</script>
+<script>
+// AgroPOS DEMO: simula el servidor dentro del navegador para poder probar la
+// aplicación desde un enlace, sin instalar nada. Intercepta fetch('/api/...')
+// y responde igual que el backend real (src/), guardando los datos en este navegador.
+(function () {
+  // ---------- Almacenamiento seguro (algunos navegadores lo bloquean) ----------
+  function memoria() {
+    const m = new Map();
+    return {
+      getItem: (k) => (m.has(k) ? m.get(k) : null),
+      setItem: (k, v) => m.set(k, String(v)),
+      removeItem: (k) => m.delete(k),
+      clear: () => m.clear(),
+      key: (i) => [...m.keys()][i] ?? null,
+      get length() { return m.size; },
+    };
+  }
+  for (const nombre of ['localStorage', 'sessionStorage']) {
+    try {
+      window[nombre].setItem('__prueba', '1');
+      window[nombre].removeItem('__prueba');
+    } catch {
+      try { Object.defineProperty(window, nombre, { value: memoria(), configurable: true }); } catch { /* sin almacenamiento */ }
+    }
+  }
+
+  const CLAVE_BD = 'agropos_demo_bd_v1';
+  const dos = (n) => String(n).padStart(2, '0');
+  const textoLocal = (d = new Date()) =>
+    `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())} ${dos(d.getHours())}:${dos(d.getMinutes())}:${dos(d.getSeconds())}`;
+  const hoy = () => textoLocal().slice(0, 10);
+  const r3 = (n) => Math.round(n * 1000) / 1000;
+  const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'v-' + Date.now() + '-' + Math.random().toString(16).slice(2));
+
+  class ErrorDemo extends Error {
+    constructor(estado, mensaje) { super(mensaje); this.estado = estado; }
+  }
+  const invalido = (m) => new ErrorDemo(400, m);
+  const noEncontrado = (m) => new ErrorDemo(404, m);
+
+  // ---------- Datos de ejemplo (los mismos de src/db/seed.js) ----------
+  const CATEGORIAS = [['Frutas', '🍎'], ['Verduras', '🥬'], ['Tubérculos y plátano', '🥔'],
+    ['Hierbas y aromáticas', '🌿'], ['Lácteos y charcutería', '🧀'], ['Granero', '🥚']];
+  const PRODUCTOS = [
+    ['4011', 'Banano criollo', 'Frutas', 'kg', 3000, 0, 60, 10, '🍌'],
+    ['4046', 'Aguacate hass', 'Frutas', 'kg', 9000, 0, 25, 5, '🥑'],
+    ['4048', 'Limón tahití', 'Frutas', 'kg', 4500, 0, 30, 8, '🍋'],
+    ['4051', 'Mango tommy', 'Frutas', 'kg', 5500, 0, 40, 8, '🥭'],
+    ['4012', 'Naranja valencia', 'Frutas', 'kg', 3200, 0, 80, 15, '🍊'],
+    ['4394', 'Papaya maradol', 'Frutas', 'kg', 3800, 0, 35, 8, '🍈'],
+    ['4430', 'Piña oro miel', 'Frutas', 'kg', 3500, 0, 30, 6, '🍍'],
+    ['4323', 'Fresa', 'Frutas', 'kg', 12000, 0, 4, 5, '🍓'],
+    ['4299', 'Guayaba pera', 'Frutas', 'kg', 4200, 0, 20, 5, '🍐'],
+    ['4312', 'Maracuyá', 'Frutas', 'kg', 6000, 0, 18, 5, '🟡'],
+    ['4664', 'Tomate chonto', 'Verduras', 'kg', 4800, 0, 70, 15, '🍅'],
+    ['4665', 'Cebolla cabezona blanca', 'Verduras', 'kg', 3500, 0, 50, 10, '🧅'],
+    ['4068', 'Cebolla junca', 'Verduras', 'kg', 4000, 0, 3, 5, '🌱'],
+    ['4562', 'Zanahoria', 'Verduras', 'kg', 2800, 0, 45, 10, '🥕'],
+    ['4065', 'Pimentón', 'Verduras', 'kg', 7000, 0, 15, 4, '🫑'],
+    ['4072', 'Papa pastusa', 'Tubérculos y plátano', 'kg', 3200, 0, 120, 25, '🥔'],
+    ['4073', 'Papa criolla', 'Tubérculos y plátano', 'kg', 5200, 0, 30, 8, '🥔'],
+    ['4074', 'Yuca', 'Tubérculos y plátano', 'kg', 2600, 0, 55, 10, '🥖'],
+    ['4235', 'Plátano hartón verde', 'Tubérculos y plátano', 'kg', 3600, 0, 65, 12, '🍌'],
+    ['5001', 'Cilantro (manojo)', 'Hierbas y aromáticas', 'und', 1000, 0, 40, 10, '🌿'],
+    ['5002', 'Perejil (manojo)', 'Hierbas y aromáticas', 'und', 1000, 0, 25, 8, '🌿'],
+    ['6001', 'Queso costeño', 'Lácteos y charcutería', 'kg', 26000, 0, 12, 3, '🧀'],
+    ['6002', 'Jamón de cerdo', 'Lácteos y charcutería', 'kg', 32000, 19, 8, 2, '🍖'],
+    ['7001', 'Huevo AA (unidad)', 'Granero', 'und', 650, 0, 300, 60, '🥚'],
+    ['7002', 'Panela (500 g)', 'Granero', 'und', 3500, 5, 40, 10, '🟫'],
+  ];
+  const CONFIG_INICIAL = {
+    negocio_nombre: 'Fruver AgroPOS', negocio_nit: '900.000.000-0', negocio_direccion: 'Cúcuta, Norte de Santander',
+    negocio_telefono: '', recibo_mensaje: '¡Gracias por su compra!', pesos_por_punto: '1000', valor_punto: '10',
+    bascula_modo: 'simulador', bascula_puerto: 'COM3', bascula_baudios: '9600', bascula_bits_datos: '8',
+    bascula_paridad: 'none', bascula_bits_parada: '1', bascula_comando: '', bascula_intervalo_ms: '300',
+  };
+  const CAJA = 'DEMO-01';
+
+  function crearBD() {
+    const bd = {
+      seq: {}, usuarios: [], categorias: [], productos: [], clientes: [], tasas: [],
+      ventas: [], recepciones: [], config: { ...CONFIG_INICIAL }, enLinea: true,
+    };
+    const ahora = textoLocal();
+    bd.usuarios.push({ id: 1, nombre: 'Administrador', correo: 'admin@agropos.com', clave: 'admin123', rol: 'admin', activo: 1, creado_en: ahora });
+    bd.usuarios.push({ id: 2, nombre: 'Cajero Principal', correo: 'cajero@agropos.com', clave: 'cajero123', rol: 'cajero', activo: 1, creado_en: ahora });
+    bd.seq.usuarios = 2;
+    CATEGORIAS.forEach(([nombre, emoji], i) => bd.categorias.push({ id: i + 1, nombre, emoji }));
+    PRODUCTOS.forEach(([plu, nombre, cat, unidad, precio, iva, stock, minimo, emoji], i) => {
+      bd.productos.push({
+        id: i + 1, plu, nombre, categoria_id: bd.categorias.find((c) => c.nombre === cat).id, unidad, precio, iva,
+        stock, stock_minimo: minimo, emoji, activo: 1, creado_en: ahora, actualizado_en: ahora,
+      });
+    });
+    bd.seq.productos = PRODUCTOS.length;
+    bd.tasas.push({ id: 1, usd: 3900, ves: 15, usuario_nombre: 'Datos de ejemplo', creado_en: ahora });
+    bd.seq.tasas = 1;
+    bd.clientes.push({ id: 1, cedula: '1090123456', nombre: 'María Fernanda Rojas', telefono: '3001234567', puntos: 120, creado_en: ahora });
+    bd.clientes.push({ id: 2, cedula: '88234567', nombre: 'Carlos Andrés Peña', telefono: '3157654321', puntos: 40, creado_en: ahora });
+    bd.clientes.push({ id: 3, cedula: '1093456789', nombre: 'Luz Marina Contreras', telefono: '3209876543', puntos: 65, creado_en: ahora });
+    bd.seq.clientes = 3;
+    bd.recepciones.push({
+      id: 1, lote: 'L-0001', proveedor: 'Cenabastos Cúcuta', notas: 'Inventario inicial', usuario_nombre: 'Administrador', creado_en: ahora,
+      items: bd.productos.map((p) => ({ producto_id: p.id, cantidad: p.stock, costo_unitario: Math.round(p.precio * 0.7), vence: null })),
+    });
+    bd.seq.recepciones = 1;
+    bd.seq.ventas = 0;
+    ventasDeEjemplo(bd);
+    return bd;
+  }
+
+  // Ventas de los últimos 7 días para que los reportes muestren algo desde el inicio.
+  function ventasDeEjemplo(bd) {
+    let semilla = 20261020;
+    const azar = () => ((semilla = (semilla * 1103515245 + 12345) % 2147483648) / 2147483648);
+    const elegir = (lista) => lista[Math.floor(azar() * lista.length)];
+    const tasas = { USD: 3900, VES: 15 };
+    for (let dia = 6; dia >= 0; dia--) {
+      const cuantas = 4 + Math.floor(azar() * 5);
+      const horas = Array.from({ length: cuantas }, () => 7 + azar() * 11).sort((a, b) => a - b);
+      for (const hora of horas) {
+        const fecha = new Date();
+        fecha.setDate(fecha.getDate() - dia);
+        fecha.setHours(Math.floor(hora), Math.floor((hora % 1) * 60), Math.floor(azar() * 60));
+        if (fecha > new Date()) continue;
+        const lineas = [];
+        const n = 1 + Math.floor(azar() * 4);
+        for (let i = 0; i < n; i++) {
+          const p = elegir(bd.productos);
+          if (lineas.some((l) => l.producto.id === p.id)) continue;
+          const cantidad = p.unidad === 'kg' ? r3(0.3 + azar() * 2.7) : 1 + Math.floor(azar() * 6);
+          const fuente = p.unidad === 'und' ? 'unidad' : azar() < 0.06 ? 'manual' : 'bascula';
+          lineas.push({ producto: p, cantidad, fuente, precio: p.precio, iva: p.iva });
+        }
+        const cliente = azar() < 0.4 ? elegir(bd.clientes) : null;
+        const totales = Dinero.calcularVenta(lineas, 0);
+        const forma = azar();
+        let pagos;
+        if (forma < 0.5) {
+          const billetes = [5000, 10000, 20000, 50000, 100000];
+          const entregado = billetes.find((b) => b >= totales.total) || Math.ceil(totales.total / 50000) * 50000;
+          pagos = [{ metodo: 'efectivo', moneda: 'COP', monto: azar() < 0.3 ? totales.total : entregado }];
+        } else if (forma < 0.62) {
+          pagos = [{ metodo: 'efectivo', moneda: 'USD', monto: Math.max(1, Math.ceil(totales.total / tasas.USD)) }];
+        } else if (forma < 0.72) {
+          pagos = [{ metodo: 'efectivo', moneda: 'VES', monto: Math.ceil(totales.total / tasas.VES / 10) * 10 }];
+        } else {
+          const metodo = elegir(['tarjeta', 'transferencia', 'digital']);
+          pagos = [{ metodo, moneda: 'COP', monto: totales.total }];
+        }
+        const cobro = Dinero.calcularCobro(totales.total, pagos, tasas);
+        if (!cobro.completo) continue;
+        const duracion = 35 + Math.floor(azar() * 200);
+        const id = ++bd.seq.ventas;
+        const creado = textoLocal(fecha);
+        bd.ventas.push({
+          id, uuid: uuid(), numero: `${CAJA}-${String(id).padStart(6, '0')}`, caja_id: CAJA,
+          usuario_id: 2, usuario_nombre: 'Cajero Principal',
+          cliente_id: cliente?.id ?? null, cliente_cedula: cliente?.cedula ?? null, cliente_nombre: cliente?.nombre ?? null,
+          total_bruto: totales.total_bruto, subtotal: totales.subtotal, iva: totales.iva, descuento_puntos: 0,
+          redondeo: totales.redondeo, total: totales.total, pagado_cop: cobro.pagado_cop, cambio_cop: cobro.cambio,
+          tasa_usd: tasas.USD, tasa_ves: tasas.VES,
+          puntos_ganados: cliente ? Math.floor(totales.total / 1000) : 0, puntos_redimidos: 0,
+          inicio_atencion: textoLocal(new Date(fecha - duracion * 1000)), fin_atencion: creado, duracion_seg: duracion,
+          sin_conexion: azar() < 0.12 ? 1 : 0, sincronizada: 1, sincronizada_en: creado, creado_en: creado, ejemplo: true,
+          items: totales.lineas.map((l) => ({
+            producto_id: l.producto.id, plu: l.producto.plu, nombre: l.producto.nombre, unidad: l.producto.unidad,
+            cantidad: l.cantidad, precio_unitario: l.precio, iva: l.iva, total: l.total, fuente_peso: l.fuente,
+          })),
+          pagos: cobro.pagos,
+        });
+      }
+    }
+  }
+
+  // ---------- Carga y guardado ----------
+  let bd;
+  try {
+    bd = JSON.parse(localStorage.getItem(CLAVE_BD) || 'null');
+  } catch { bd = null; }
+  if (!bd || !bd.usuarios) bd = crearBD();
+  function guardar() {
+    try { localStorage.setItem(CLAVE_BD, JSON.stringify(bd)); } catch { /* sin almacenamiento */ }
+  }
+  guardar();
+
+  const siguienteId = (tabla) => (bd.seq[tabla] = (bd.seq[tabla] || 0) + 1);
+
+  // ---------- Báscula simulada (misma lógica que src/services/bascula.js) ----------
+  const bascula = {
+    estado: { modo: 'simulador', conectada: true, puerto: null, bruto: 0, cero: 0, tara: 0, neto: 0, estable: false, error: null, actualizado: null },
+    objetivo: 0, actual: 0, lecturas: [], oyentes: new Set(), capturas: new Map(),
+    resumen() { return { ...this.estado }; },
+    emitir() { const r = this.resumen(); this.oyentes.forEach((f) => f(r)); },
+    tic() {
+      const dif = this.objetivo - this.actual;
+      if (Math.abs(dif) > 0.003) this.actual += dif * 0.55 + (Math.random() - 0.5) * 0.006;
+      else this.actual = this.objetivo;
+      const ahora = Date.now();
+      this.lecturas.push({ v: this.actual, t: ahora });
+      this.lecturas = this.lecturas.filter((l) => ahora - l.t <= 1200);
+      const valores = this.lecturas.map((l) => l.v);
+      const rango = Math.max(...valores) - Math.min(...valores);
+      const e = this.estado;
+      e.bruto = r3(this.actual);
+      e.neto = r3(this.actual - e.cero - e.tara);
+      e.estable = this.lecturas.length >= 2 && rango <= 0.005;
+      e.actualizado = new Date().toISOString();
+      this.emitir();
+    },
+    simular(peso) {
+      const v = Number(peso);
+      if (!Number.isFinite(v) || v < 0 || v > 60) throw invalido('El peso simulado debe estar entre 0 y 60 kg.');
+      this.objetivo = v;
+      return this.resumen();
+    },
+    cero() { const e = this.estado; e.cero = e.bruto; e.tara = 0; e.neto = 0; this.emitir(); return this.resumen(); },
+    tara() {
+      const e = this.estado;
+      const carga = e.bruto - e.cero;
+      e.tara = carga > 0.005 ? r3(carga) : 0;
+      e.neto = r3(e.bruto - e.cero - e.tara);
+      this.emitir();
+      return this.resumen();
+    },
+    capturar() {
+      const e = this.estado;
+      if (!e.estable) throw new ErrorDemo(409, 'Espera a que el peso esté estable.');
+      if (e.neto < 0.005) throw new ErrorDemo(409, 'No hay peso en la báscula. Usa los botones del simulador para poner un peso.');
+      const c = { id: uuid(), peso: r3(e.neto), fuente: 'simulador', creada: Date.now() };
+      this.capturas.set(c.id, c);
+      return c;
+    },
+  };
+  setInterval(() => bascula.tic(), 200);
+
+  // El panel escucha la báscula con EventSource: aquí se reemplaza por la báscula simulada.
+  window.EventSource = class {
+    constructor() {
+      this.onmessage = null;
+      this.onerror = null;
+      this._oyente = (d) => this.onmessage && this.onmessage({ data: JSON.stringify(d) });
+      bascula.oyentes.add(this._oyente);
+      setTimeout(() => this._oyente(bascula.resumen()), 0);
+    }
+    close() { bascula.oyentes.delete(this._oyente); }
+  };
+
+  // ---------- Sincronización simulada con la nube ----------
+  const estadoNube = { ultimaSincronizacion: null };
+  function sincronizar() {
+    if (!bd.enLinea) return;
+    let cambios = false;
+    for (const v of bd.ventas) {
+      if (!v.sincronizada) { v.sincronizada = 1; v.sincronizada_en = textoLocal(); cambios = true; }
+    }
+    estadoNube.ultimaSincronizacion = new Date().toISOString();
+    if (cambios) guardar();
+  }
+  setInterval(sincronizar, 15000);
+  const resumenNube = () => ({
+    activo: true, nubeUrl: 'nube de demostración', conectada: bd.enLinea,
+    ultimoIntento: new Date().toISOString(), ultimaSincronizacion: estadoNube.ultimaSincronizacion,
+    error: bd.enLinea ? null : 'Sin conexión con la nube (simulado).',
+    pendientes: bd.ventas.filter((v) => !v.sincronizada).length,
+  });
+
+  // ---------- Utilidades de negocio ----------
+  const cat = (id) => bd.categorias.find((c) => c.id === id);
+  const vistaProducto = (p) => ({ ...p, categoria: cat(p.categoria_id)?.nombre || null, stock_bajo: p.stock <= p.stock_minimo ? 1 : 0 });
+  const limpiarCedula = (v) => String(v || '').replace(/[.\s-]/g, '');
+  const num = (clave) => Number(bd.config[clave]) || 0;
+  const reglas = () => ({ pesos_por_punto: num('pesos_por_punto'), valor_punto: num('valor_punto') });
+  const tasaActual = () => {
+    const t = bd.tasas[bd.tasas.length - 1];
+    return t ? { USD: t.usd, VES: t.ves, actualizado: t.creado_en, usuario: t.usuario_nombre } : { USD: 0, VES: 0, actualizado: null, usuario: null };
+  };
+  const comprasDe = (cedula) => bd.ventas.filter((v) => v.cliente_cedula === cedula);
+  const vistaCliente = (c) => {
+    const compras = comprasDe(c.cedula);
+    return { ...c, compras: compras.length, ultima_compra: compras.length ? compras[compras.length - 1].creado_en : null };
+  };
+
+  function exigirAdmin(u) {
+    if (u.rol !== 'admin') throw new ErrorDemo(403, 'Esta acción es solo para administradores.');
+  }
+
+  function validarProducto(body, parcial) {
+    const d = {};
+    const campos = ['plu', 'nombre', 'categoria_id', 'unidad', 'precio', 'iva', 'stock_minimo', 'emoji', 'activo'];
+    if (!parcial) campos.push('stock');
+    for (const c of campos) if (body[c] !== undefined) d[c] = body[c];
+    if (!parcial || d.plu !== undefined) {
+      d.plu = String(d.plu || '').trim();
+      if (!/^[0-9A-Za-z-]{1,20}$/.test(d.plu)) throw invalido('El PLU es obligatorio (solo letras, números o guion).');
+    }
+    if (!parcial || d.nombre !== undefined) {
+      d.nombre = String(d.nombre || '').trim();
+      if (!d.nombre) throw invalido('El nombre es obligatorio.');
+    }
+    if ((!parcial || d.unidad !== undefined) && !['kg', 'und'].includes(d.unidad)) throw invalido('La unidad debe ser "kg" o "und".');
+    if (!parcial || d.precio !== undefined) {
+      d.precio = Number(d.precio);
+      if (!(d.precio >= 0)) throw invalido('El precio no es válido.');
+    }
+    for (const c of ['iva', 'stock', 'stock_minimo']) {
+      if (d[c] !== undefined) {
+        d[c] = Number(d[c]);
+        if (!(d[c] >= 0)) throw invalido(`El valor de ${c} no es válido.`);
+      }
+    }
+    if (d.categoria_id !== undefined) d.categoria_id = d.categoria_id ? Number(d.categoria_id) : null;
+    if (d.activo !== undefined) d.activo = d.activo ? 1 : 0;
+    return d;
+  }
+
+  function validarCliente(body) {
+    const cedula = limpiarCedula(body.cedula);
+    const nombre = String(body.nombre || '').trim();
+    const telefono = String(body.telefono || '').trim() || null;
+    if (!/^[0-9A-Za-z]{5,15}$/.test(cedula)) throw invalido('La cédula debe tener entre 5 y 15 dígitos.');
+    if (!nombre) throw invalido('El nombre del cliente es obligatorio.');
+    return { cedula, nombre, telefono };
+  }
+
+  // ---------- Ventas (misma lógica que src/services/ventas.js) ----------
+  function crearVenta(datos, usuario) {
+    const items = datos.items;
+    if (!Array.isArray(items) || !items.length) throw invalido('El carrito está vacío.');
+    const usadas = new Set();
+    const lineas = items.map((item, i) => {
+      const producto = bd.productos.find((p) => p.id === Number(item.producto_id) && p.activo);
+      if (!producto) throw invalido(`Producto no encontrado (renglón ${i + 1}).`);
+      let cantidad;
+      let fuente;
+      if (producto.unidad === 'und') {
+        cantidad = Number(item.cantidad);
+        if (!Number.isInteger(cantidad) || cantidad < 1) throw invalido(`Cantidad no válida para ${producto.nombre}.`);
+        fuente = 'unidad';
+      } else if (item.captura_id) {
+        if (usadas.has(item.captura_id)) throw invalido('Un mismo peso no se puede usar dos veces.');
+        const c = bascula.capturas.get(item.captura_id);
+        if (!c) throw invalido(`El peso de ${producto.nombre} venció. Vuelve a pesarlo.`);
+        usadas.add(item.captura_id);
+        cantidad = c.peso;
+        fuente = c.fuente;
+      } else {
+        throw invalido(`Falta el peso de ${producto.nombre}.`);
+      }
+      return { producto, cantidad, fuente, precio: producto.precio, iva: producto.iva };
+    });
+
+    const tasas = tasaActual();
+    let cliente = null;
+    if (datos.cliente_cedula) {
+      cliente = bd.clientes.find((c) => c.cedula === limpiarCedula(datos.cliente_cedula));
+      if (!cliente) throw invalido('El cliente no está registrado.');
+    }
+    const { valor_punto: valorPunto, pesos_por_punto: pesosPorPunto } = reglas();
+    const redimir = Math.floor(Number(datos.puntos_redimir) || 0);
+    if (redimir < 0) throw invalido('Los puntos a redimir no pueden ser negativos.');
+    if (redimir > 0 && !cliente) throw invalido('Para redimir puntos hay que identificar al cliente.');
+    if (cliente && redimir > cliente.puntos) throw invalido(`El cliente solo tiene ${cliente.puntos} puntos.`);
+    const totales = Dinero.calcularVenta(lineas, redimir * valorPunto);
+    if (redimir * valorPunto > totales.total_bruto) throw invalido('Los puntos a redimir superan el valor de la compra.');
+    const cobro = Dinero.calcularCobro(totales.total, datos.pagos, tasas);
+    if (cobro.errores.length) throw invalido(cobro.errores[0]);
+    if (cobro.falta > 0) throw invalido(`Falta por pagar $${cobro.falta.toLocaleString('es-CO')}.`);
+    const ganados = cliente && pesosPorPunto > 0 ? Math.floor(totales.total / pesosPorPunto) : 0;
+
+    const fin = new Date();
+    const inicio = datos.inicio_atencion ? new Date(datos.inicio_atencion) : null;
+    let duracion = inicio && !isNaN(inicio) ? Math.round((fin - inicio) / 1000) : null;
+    if (duracion !== null && (duracion < 0 || duracion > 4 * 3600)) duracion = null;
+
+    const id = siguienteId('ventas');
+    const venta = {
+      id, uuid: uuid(), numero: `${CAJA}-${String(id).padStart(6, '0')}`, caja_id: CAJA,
+      usuario_id: usuario.id, usuario_nombre: usuario.nombre,
+      cliente_id: cliente?.id ?? null, cliente_cedula: cliente?.cedula ?? null, cliente_nombre: cliente?.nombre ?? null,
+      total_bruto: totales.total_bruto, subtotal: totales.subtotal, iva: totales.iva, descuento_puntos: totales.descuento,
+      redondeo: totales.redondeo, total: totales.total, pagado_cop: cobro.pagado_cop, cambio_cop: cobro.cambio,
+      tasa_usd: tasas.USD || null, tasa_ves: tasas.VES || null, puntos_ganados: ganados, puntos_redimidos: redimir,
+      inicio_atencion: duracion !== null ? textoLocal(inicio) : null, fin_atencion: textoLocal(fin), duracion_seg: duracion,
+      sin_conexion: bd.enLinea ? 0 : 1, sincronizada: 0, sincronizada_en: null, creado_en: textoLocal(fin),
+      items: totales.lineas.map((l) => ({
+        producto_id: l.producto.id, plu: l.producto.plu, nombre: l.producto.nombre, unidad: l.producto.unidad,
+        cantidad: l.cantidad, precio_unitario: l.precio, iva: l.iva, total: l.total, fuente_peso: l.fuente,
+      })),
+      pagos: cobro.pagos,
+    };
+    bd.ventas.push(venta);
+    for (const l of totales.lineas) {
+      l.producto.stock = r3(l.producto.stock - l.cantidad);
+      l.producto.actualizado_en = textoLocal();
+    }
+    if (cliente) cliente.puntos += ganados - redimir;
+    usadas.forEach((u) => bascula.capturas.delete(u));
+    guardar();
+    setTimeout(sincronizar, 1500);
+    return obtenerVenta(id);
+  }
+
+  function obtenerVenta(id) {
+    const v = bd.ventas.find((x) => x.id === Number(id));
+    if (!v) throw noEncontrado('Venta no encontrada.');
+    const cliente = v.cliente_cedula ? bd.clientes.find((c) => c.cedula === v.cliente_cedula) : null;
+    return { ...v, desglose_cambio: Dinero.desglosar(v.cambio_cop), cliente_puntos: cliente ? cliente.puntos : null };
+  }
+
+  // ---------- Reportes (misma lógica que src/services/reportes.js) ----------
+  const porcentaje = (parte, total) => (total ? Math.round((parte / total) * 1000) / 10 : 0);
+  const sumar = (lista, f) => lista.reduce((s, x) => s + (Number(f(x)) || 0), 0);
+  function agrupar(lista, clave, armar) {
+    const mapa = new Map();
+    for (const x of lista) {
+      const k = clave(x);
+      if (!mapa.has(k)) mapa.set(k, []);
+      mapa.get(k).push(x);
+    }
+    return [...mapa.entries()].map(([k, grupo]) => armar(k, grupo));
+  }
+
+  function generarReporte(q) {
+    const desde = q.desde || hoy();
+    const hasta = q.hasta || hoy();
+    const vs = bd.ventas.filter((v) => {
+      const d = v.creado_en.slice(0, 10);
+      return d >= desde && d <= hasta && (!q.caja || v.caja_id === q.caja);
+    });
+    const n = vs.length;
+    const total = sumar(vs, (v) => v.total);
+    const duraciones = vs.map((v) => v.duracion_seg).filter((d) => d !== null && d !== undefined);
+    const items = vs.flatMap((v) => v.items);
+    const pagos = vs.flatMap((v) => v.pagos);
+    const porPeso = items.filter((i) => i.unidad === 'kg');
+    const fuentes = agrupar(porPeso, (i) => i.fuente_peso, (fuente, g) => ({ fuente, lineas: g.length, kg: sumar(g, (i) => i.cantidad) }));
+    const conBascula = sumar(fuentes.filter((f) => f.fuente === 'bascula' || f.fuente === 'simulador'), (f) => f.lineas);
+    const sinConexion = vs.filter((v) => v.sin_conexion);
+    const cedulas = agrupar(vs.filter((v) => v.cliente_cedula), (v) => v.cliente_cedula, (cedula, g) => ({ cedula, compras: g.length }));
+    const recurrentes = cedulas.filter((c) =>
+      bd.ventas.filter((v) => v.cliente_cedula === c.cedula && v.creado_en.slice(0, 10) <= hasta).length >= 2).length;
+    const ventasConCliente = sumar(cedulas, (c) => c.compras);
+    const ordenar = (lista, campo) => lista.sort((a, b) => b[campo] - a[campo]);
+
+    return {
+      desde, hasta, caja: q.caja || null,
+      resumen: {
+        ventas: n, total, ticket_promedio: n ? Math.round(total / n) : 0, iva: sumar(vs, (v) => v.iva),
+        descuento_puntos: sumar(vs, (v) => v.descuento_puntos), redondeo: sumar(vs, (v) => v.redondeo),
+        cambio_entregado: sumar(vs, (v) => v.cambio_cop),
+      },
+      atencion: {
+        medidas: duraciones.length,
+        promedio_seg: duraciones.length ? Math.round(sumar(duraciones, (d) => d) / duraciones.length) : null,
+        minimo_seg: duraciones.length ? Math.min(...duraciones) : null,
+        maximo_seg: duraciones.length ? Math.max(...duraciones) : null,
+      },
+      pesaje: { lineas_por_peso: porPeso.length, con_bascula: conBascula, porcentaje_bascula: porcentaje(conBascula, porPeso.length), detalle: fuentes },
+      conexion: {
+        ventas_sin_conexion: sinConexion.length, total_sin_conexion: sumar(sinConexion, (v) => v.total),
+        pendientes_sincronizar: vs.filter((v) => !v.sincronizada).length, porcentaje: porcentaje(sinConexion.length, n),
+      },
+      clientes: {
+        identificados: cedulas.length, recurrentes, ventas_con_cliente: ventasConCliente,
+        porcentaje_recurrentes: porcentaje(recurrentes, cedulas.length), porcentaje_ventas_con_cliente: porcentaje(ventasConCliente, n),
+      },
+      por_moneda: ordenar(agrupar(pagos, (p) => p.moneda, (moneda, g) => ({
+        moneda, pagos: g.length, monto: sumar(g, (p) => p.monto), monto_cop: sumar(g, (p) => p.monto_cop) })), 'monto_cop'),
+      por_metodo: ordenar(agrupar(pagos, (p) => p.metodo, (metodo, g) => ({
+        metodo, pagos: g.length, monto_cop: sumar(g, (p) => p.monto_cop) })), 'monto_cop'),
+      por_dia: agrupar(vs, (v) => v.creado_en.slice(0, 10), (dia, g) => ({ dia, ventas: g.length, total: sumar(g, (v) => v.total) }))
+        .sort((a, b) => a.dia.localeCompare(b.dia)),
+      por_caja: agrupar(vs, (v) => v.caja_id, (caja_id, g) => ({ caja_id, ventas: g.length, total: sumar(g, (v) => v.total) })),
+      por_cajero: ordenar(agrupar(vs, (v) => v.usuario_nombre, (cajero, g) => {
+        const d = g.map((v) => v.duracion_seg).filter((x) => x !== null && x !== undefined);
+        return { cajero, ventas: g.length, total: sumar(g, (v) => v.total), promedio_seg: d.length ? Math.round(sumar(d, (x) => x) / d.length) : null };
+      }), 'total'),
+      top_productos: ordenar(agrupar(items, (i) => i.plu, (plu, g) => ({
+        plu, nombre: g[0].nombre, unidad: g[0].unidad, cantidad: sumar(g, (i) => i.cantidad), total: sumar(g, (i) => i.total) })), 'total').slice(0, 10),
+    };
+  }
+
+  // ---------- Rutas de la API ----------
+  const PUBLICAS = ['negocio_nombre', 'negocio_nit', 'negocio_direccion', 'negocio_telefono', 'recibo_mensaje', 'pesos_por_punto', 'valor_punto'];
+  const CAMPOS_BASCULA = ['bascula_modo', 'bascula_puerto', 'bascula_baudios', 'bascula_bits_datos', 'bascula_paridad',
+    'bascula_bits_parada', 'bascula_comando', 'bascula_intervalo_ms'];
+  const elegirCampos = (obj, campos) => Object.fromEntries(campos.map((c) => [c, obj[c]]));
+  const vistaUsuario = ({ clave, ...u }) => u;
+
+  function manejar(metodo, partes, q, cuerpo, usuario) {
+    const [recurso, a, b] = partes;
+    const ruta = `${metodo} ${recurso}${a ? '/' + (/^\d+$/.test(a) || recurso === 'clientes' ? ':x' : a) : ''}${b ? '/' + (/^\d+$/.test(b) ? ':y' : b) : ''}`;
+    const body = cuerpo || {};
+
+    if (ruta === 'POST auth/login') {
+      const correo = String(body.correo || '').trim().toLowerCase();
+      const u = bd.usuarios.find((x) => x.correo.toLowerCase() === correo && x.activo);
+      if (!correo || !body.clave) throw invalido('Escribe el correo y la contraseña.');
+      if (!u || u.clave !== String(body.clave)) throw new ErrorDemo(401, 'Correo o contraseña incorrectos.');
+      const datos = { id: u.id, nombre: u.nombre, correo: u.correo, rol: u.rol };
+      return { estado: 200, datos: { token: 'demo-' + u.id, usuario: datos } };
+    }
+    if (!usuario) throw new ErrorDemo(401, 'Sesión vencida o no válida. Inicia sesión de nuevo.');
+
+    switch (ruta) {
+      case 'GET auth/yo': return vistaUsuario(usuario);
+
+      case 'GET estado': {
+        const activos = bd.productos.filter((p) => p.activo);
+        return {
+          modo: 'caja', caja_id: CAJA, hora_servidor: new Date().toISOString(), nube: resumenNube(), bascula: bascula.resumen(),
+          inventario: {
+            productos: activos.length, stock_bajo: activos.filter((p) => p.stock <= p.stock_minimo).length,
+            agotados: activos.filter((p) => p.stock <= 0).length,
+          },
+        };
+      }
+      case 'POST estado/sincronizar': sincronizar(); return resumenNube();
+
+      case 'GET productos/categorias': return [...bd.categorias].sort((x, y) => x.nombre.localeCompare(y.nombre));
+      case 'GET productos': {
+        const texto = String(q.buscar || '').toLowerCase();
+        return bd.productos
+          .filter((p) => (q.todos === '1' || p.activo) &&
+            (!texto || p.nombre.toLowerCase().includes(texto) || p.plu.toLowerCase().startsWith(texto)) &&
+            (!q.categoria || p.categoria_id === Number(q.categoria)) &&
+            (q.stock_bajo !== '1' || p.stock <= p.stock_minimo))
+          .map(vistaProducto)
+          .sort((x, y) => (x.categoria || '').localeCompare(y.categoria || '') || x.nombre.localeCompare(y.nombre));
+      }
+      case 'GET productos/:x': {
+        const p = bd.productos.find((x) => x.id === Number(a));
+        if (!p) throw noEncontrado('Producto no encontrado.');
+        return vistaProducto(p);
+      }
+      case 'POST productos': {
+        exigirAdmin(usuario);
+        const d = validarProducto(body, false);
+        if (bd.productos.some((p) => p.plu === d.plu)) throw invalido('Ya existe un producto con ese PLU.');
+        const p = { categoria_id: null, iva: 0, stock: 0, stock_minimo: 0, emoji: null, ...d, id: siguienteId('productos'), activo: 1,
+          creado_en: textoLocal(), actualizado_en: textoLocal() };
+        bd.productos.push(p);
+        guardar();
+        return { estado: 201, datos: vistaProducto(p) };
+      }
+      case 'PUT productos/:x': {
+        exigirAdmin(usuario);
+        const p = bd.productos.find((x) => x.id === Number(a));
+        if (!p) throw noEncontrado('Producto no encontrado.');
+        const d = validarProducto(body, true);
+        if (d.plu && bd.productos.some((x) => x.plu === d.plu && x.id !== p.id)) throw invalido('Ya existe un producto con ese PLU.');
+        Object.assign(p, d, { actualizado_en: textoLocal() });
+        guardar();
+        return vistaProducto(p);
+      }
+
+      case 'GET clientes': {
+        const texto = String(q.buscar || '').toLowerCase();
+        return bd.clientes.filter((c) => c.cedula.includes(texto) || c.nombre.toLowerCase().includes(texto))
+          .map(vistaCliente).sort((x, y) => x.nombre.localeCompare(y.nombre));
+      }
+      case 'GET clientes/:x': {
+        if (a === 'reglas') return reglas();
+        const c = bd.clientes.find((x) => x.cedula === limpiarCedula(decodeURIComponent(a)));
+        if (!c) throw noEncontrado('Cliente no registrado.');
+        return { ...vistaCliente(c), ...reglas() };
+      }
+      case 'POST clientes': {
+        const d = validarCliente(body);
+        if (bd.clientes.some((c) => c.cedula === d.cedula)) throw invalido('Ya hay un cliente con esa cédula.');
+        const c = { id: siguienteId('clientes'), ...d, puntos: 0, creado_en: textoLocal() };
+        bd.clientes.push(c);
+        guardar();
+        return { estado: 201, datos: { ...vistaCliente(c), ...reglas() } };
+      }
+      case 'PUT clientes/:x': {
+        const c = bd.clientes.find((x) => x.cedula === limpiarCedula(decodeURIComponent(a)));
+        if (!c) throw noEncontrado('Cliente no registrado.');
+        const d = validarCliente({ ...body, cedula: c.cedula });
+        c.nombre = d.nombre;
+        c.telefono = d.telefono;
+        guardar();
+        return { ...vistaCliente(c), ...reglas() };
+      }
+
+      case 'GET tasas': return tasaActual();
+      case 'GET tasas/historial': return [...bd.tasas].reverse().slice(0, 30);
+      case 'POST tasas': {
+        exigirAdmin(usuario);
+        const usd = Number(body.USD);
+        const ves = Number(body.VES);
+        if (!(usd > 0) || !(ves > 0)) throw invalido('Las tasas deben ser números mayores que cero.');
+        bd.tasas.push({ id: siguienteId('tasas'), usd, ves, usuario_nombre: usuario.nombre, creado_en: textoLocal() });
+        guardar();
+        return { estado: 201, datos: tasaActual() };
+      }
+
+      case 'GET bascula': return bascula.resumen();
+      case 'POST bascula/cero': return bascula.cero();
+      case 'POST bascula/tara': return bascula.tara();
+      case 'POST bascula/capturar': return bascula.capturar();
+      case 'POST bascula/simular': return bascula.simular(body.peso);
+      case 'GET bascula/configuracion': exigirAdmin(usuario); return elegirCampos(bd.config, CAMPOS_BASCULA);
+      case 'PUT bascula/configuracion':
+        exigirAdmin(usuario);
+        if (body.bascula_modo === 'serial') {
+          throw invalido('En esta demo solo funciona el simulador. Instala AgroPOS en el computador para conectar una báscula real.');
+        }
+        for (const c of CAMPOS_BASCULA) if (body[c] !== undefined) bd.config[c] = String(body[c]);
+        guardar();
+        return bascula.resumen();
+      case 'GET bascula/puertos':
+        throw invalido('Desde el navegador no se pueden ver los puertos. En AgroPOS instalado este botón lista los puertos COM.');
+
+      case 'POST ventas': return { estado: 201, datos: crearVenta(body, usuario) };
+      case 'GET ventas': {
+        const limite = Math.min(500, Math.max(1, Number(q.limite) || 50));
+        return [...bd.ventas].reverse()
+          .filter((v) => (!q.desde || v.creado_en >= q.desde) && (!q.hasta || v.creado_en.slice(0, 10) <= q.hasta))
+          .slice(0, limite)
+          .map((v) => ({ ...v, metodos: [...new Set(v.pagos.map((p) => p.metodo))].join(',') }));
+      }
+      case 'GET ventas/:x': return obtenerVenta(a);
+
+      case 'GET recepciones': {
+        const limite = Math.min(100, Number(q.limite) || 20);
+        return [...bd.recepciones].reverse().slice(0, limite).map((r) => ({
+          ...r,
+          items: r.items.map((i) => {
+            const p = bd.productos.find((x) => x.id === i.producto_id) || {};
+            return { ...i, nombre: p.nombre, plu: p.plu, unidad: p.unidad, emoji: p.emoji };
+          }),
+        }));
+      }
+      case 'POST recepciones': {
+        exigirAdmin(usuario);
+        const lista = body.items;
+        if (!Array.isArray(lista) || !lista.length) throw invalido('Agrega al menos un producto al lote.');
+        const limpios = lista.map((it, i) => {
+          const cantidad = Number(it.cantidad);
+          const p = bd.productos.find((x) => x.id === Number(it.producto_id));
+          if (!p) throw invalido(`Producto no válido en el renglón ${i + 1}.`);
+          if (!(cantidad > 0)) throw invalido(`Cantidad no válida en el renglón ${i + 1}.`);
+          const costo = it.costo_unitario === '' || it.costo_unitario == null ? null : Number(it.costo_unitario);
+          return { producto_id: p.id, cantidad, costo_unitario: costo, vence: /^\d{4}-\d{2}-\d{2}$/.test(it.vence || '') ? it.vence : null };
+        });
+        const id = siguienteId('recepciones');
+        const r = { id, lote: `L-${String(id).padStart(4, '0')}`, proveedor: body.proveedor || null, notas: body.notas || null,
+          usuario_nombre: usuario.nombre, creado_en: textoLocal(), items: limpios };
+        for (const it of limpios) {
+          const p = bd.productos.find((x) => x.id === it.producto_id);
+          p.stock = r3(p.stock + it.cantidad);
+        }
+        bd.recepciones.push(r);
+        guardar();
+        return { estado: 201, datos: r };
+      }
+
+      case 'GET configuracion': return elegirCampos(bd.config, PUBLICAS);
+      case 'PUT configuracion':
+        exigirAdmin(usuario);
+        for (const c of PUBLICAS) if (body[c] !== undefined) bd.config[c] = String(body[c]);
+        guardar();
+        return elegirCampos(bd.config, PUBLICAS);
+      case 'GET configuracion/usuarios': exigirAdmin(usuario); return bd.usuarios.map(vistaUsuario);
+      case 'POST configuracion/usuarios': {
+        exigirAdmin(usuario);
+        const { nombre, correo, clave, rol } = body;
+        if (!String(nombre || '').trim()) throw invalido('El nombre es obligatorio.');
+        if (!/^\S+@\S+\.\S+$/.test(String(correo || ''))) throw invalido('El correo no es válido.');
+        if (String(clave || '').length < 6) throw invalido('La contraseña debe tener al menos 6 caracteres.');
+        if (!['admin', 'cajero'].includes(rol)) throw invalido('El rol debe ser admin o cajero.');
+        if (bd.usuarios.some((u) => u.correo.toLowerCase() === correo.toLowerCase())) throw invalido('Ese correo ya está registrado.');
+        const u = { id: siguienteId('usuarios'), nombre: nombre.trim(), correo: correo.trim().toLowerCase(), clave, rol, activo: 1, creado_en: textoLocal() };
+        bd.usuarios.push(u);
+        guardar();
+        return { estado: 201, datos: vistaUsuario(u) };
+      }
+      case 'PUT configuracion/usuarios/:y': {
+        exigirAdmin(usuario);
+        const u = bd.usuarios.find((x) => x.id === Number(b));
+        if (!u) throw noEncontrado('Usuario no encontrado.');
+        if (u.id === usuario.id && (body.activo === false || body.rol === 'cajero')) {
+          throw invalido('No puedes desactivarte ni quitarte el rol de administrador a ti mismo.');
+        }
+        if (body.clave !== undefined && String(body.clave).length < 6) throw invalido('La contraseña debe tener al menos 6 caracteres.');
+        if (body.nombre?.trim()) u.nombre = body.nombre.trim();
+        if (['admin', 'cajero'].includes(body.rol)) u.rol = body.rol;
+        if (body.activo !== undefined) u.activo = body.activo ? 1 : 0;
+        if (body.clave) u.clave = body.clave;
+        guardar();
+        return vistaUsuario(u);
+      }
+
+      case 'GET reportes': exigirAdmin(usuario); return generarReporte(q);
+      case 'GET reportes/csv':
+        exigirAdmin(usuario);
+        throw invalido('Esta demo no puede descargar archivos. En AgroPOS instalado este botón descarga el CSV para Excel.');
+    }
+    throw noEncontrado('Ruta de la API no encontrada.');
+  }
+
+  // ---------- fetch('/api/...') → servidor simulado ----------
+  const fetchOriginal = window.fetch.bind(window);
+  const responder = (estado, datos) =>
+    new Response(JSON.stringify(datos), { status: estado, headers: { 'Content-Type': 'application/json' } });
+
+  window.fetch = async function (entrada, opciones = {}) {
+    const url = typeof entrada === 'string' ? entrada : entrada.url;
+    if (!url.startsWith('/api/')) return fetchOriginal(entrada, opciones);
+    const u = new URL(url, 'https://demo.agropos');
+    const partes = u.pathname.replace(/^\/api\//, '').split('/').filter(Boolean);
+    const q = Object.fromEntries(u.searchParams.entries());
+    const metodo = (opciones.method || 'GET').toUpperCase();
+    const cabeceras = opciones.headers || {};
+    const token = String(cabeceras.Authorization || cabeceras.authorization || '').replace('Bearer ', '');
+    const usuario = bd.usuarios.find((x) => 'demo-' + x.id === token && x.activo) || null;
+    await new Promise((r) => setTimeout(r, 40));
+    try {
+      const cuerpo = opciones.body ? JSON.parse(opciones.body) : undefined;
+      const resultado = manejar(metodo, partes, q, cuerpo, usuario);
+      if (resultado && resultado.estado && 'datos' in resultado) return responder(resultado.estado, resultado.datos);
+      return responder(200, resultado);
+    } catch (e) {
+      return responder(e.estado || 500, { error: e.estado ? e.message : 'Error interno: ' + e.message });
+    }
+  };
+
+  // ---------- Controles propios de la demo ----------
+  const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pesos = (v) => '$' + Math.round(Number(v) || 0).toLocaleString('es-CO');
+
+  window.Demo = {
+    iniciado: false,
+
+    ir(pantalla) {
+      const login = document.getElementById('pantalla-login');
+      const app = document.getElementById('pantalla-app');
+      if (pantalla === 'app') {
+        login.hidden = true;
+        app.hidden = false;
+        if (!this.iniciado) {
+          this.iniciado = true;
+          App.iniciar();
+        }
+      } else {
+        app.hidden = true;
+        login.hidden = false;
+        if (this.iniciado) location.reload();
+      }
+    },
+
+    // El recibo se muestra en una ventana dentro de la página.
+    recibo(id) {
+      let v;
+      try { v = obtenerVenta(id); } catch (e) { UI.error(e); return; }
+      const n = bd.config;
+      const fila = (izq, der, clase = '') => `<div class="r-fila ${clase}"><span>${izq}</span><span>${der}</span></div>`;
+      const kg = (x) => Number(x).toLocaleString('es-CO', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + ' kg';
+      const moneda = (m, mon) => (mon === 'COP' ? pesos(m)
+        : (mon === 'USD' ? 'US$' : 'Bs ') + Number(m).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+      const metodo = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', transferencia: 'Transferencia', digital: 'Pago digital' };
+      const html = `
+        <div class="recibo-demo">
+          <div class="r-centro r-negrita r-grande">${esc(n.negocio_nombre)}</div>
+          <div class="r-centro">NIT ${esc(n.negocio_nit)}</div>
+          <div class="r-centro">${esc(n.negocio_direccion)}</div>
+          <div class="r-sep"></div>
+          ${fila('Recibo', esc(v.numero))}${fila('Fecha', esc(v.creado_en))}${fila('Cajero', esc(v.usuario_nombre))}
+          ${v.cliente_nombre ? fila('Cliente', esc(v.cliente_nombre)) + fila('C.C.', esc(v.cliente_cedula)) : ''}
+          <div class="r-sep"></div>
+          ${v.items.map((i) => `<div>${esc(i.nombre)}</div>${fila(i.unidad === 'kg'
+            ? `&nbsp;&nbsp;${kg(i.cantidad)} x ${pesos(i.precio_unitario)}/kg`
+            : `&nbsp;&nbsp;${i.cantidad} x ${pesos(i.precio_unitario)}`, pesos(i.total))}`).join('')}
+          <div class="r-sep"></div>
+          ${fila('Total productos', pesos(v.total_bruto))}
+          ${v.descuento_puntos ? fila(`Descuento (${v.puntos_redimidos} pts)`, '-' + pesos(v.descuento_puntos)) : ''}
+          ${v.redondeo ? fila('Redondeo', (v.redondeo > 0 ? '+' : '-') + pesos(Math.abs(v.redondeo))) : ''}
+          ${fila('TOTAL', pesos(v.total), 'r-negrita r-grande')}
+          ${fila('IVA incluido', pesos(v.iva), 'r-chico')}
+          <div class="r-sep"></div>
+          ${v.pagos.map((p) => fila(`${metodo[p.metodo]} ${p.moneda}`, moneda(p.monto, p.moneda))).join('')}
+          ${fila('Cambio', pesos(v.cambio_cop), 'r-negrita')}
+          ${v.cliente_nombre ? `<div class="r-sep"></div>${fila('Puntos ganados', '+' + v.puntos_ganados)}${v.cliente_puntos !== null ? fila('Saldo de puntos', v.cliente_puntos) : ''}` : ''}
+          <div class="r-sep"></div>
+          <div class="r-centro">${esc(n.recibo_mensaje)}</div>
+        </div>
+        <p class="muted" style="margin-top:10px;text-align:center">En AgroPOS instalado este recibo se imprime en la impresora térmica de 80 mm.</p>`;
+      UI.modal({ titulo: 'Recibo ' + esc(v.numero), html, botones: [{ texto: 'Cerrar', clase: 'secundario' }] });
+    },
+
+    pintarControl() {
+      const cont = document.getElementById('demo-control');
+      if (!cont) return;
+      cont.innerHTML = `
+        <span class="demo-etiqueta">DEMO</span>
+        <button class="demo-btn ${bd.enLinea ? 'en-linea' : 'sin-linea'}" id="demo-internet" title="Simula que se cae o vuelve el internet">
+          <i class="fa-solid ${bd.enLinea ? 'fa-wifi' : 'fa-plane'}"></i> ${bd.enLinea ? 'Con internet' : 'Sin internet'}
+        </button>
+        <button class="demo-btn" id="demo-reiniciar" title="Borra lo que hiciste y vuelve a los datos de ejemplo">
+          <i class="fa-solid fa-rotate-left"></i> Reiniciar
+        </button>`;
+      cont.querySelector('#demo-internet').onclick = () => {
+        bd.enLinea = !bd.enLinea;
+        guardar();
+        if (bd.enLinea) sincronizar();
+        this.pintarControl();
+        UI.toast(bd.enLinea ? 'Volvió el internet: las ventas pendientes se suben a la nube.' : 'Sin internet: las ventas se guardan en la caja y quedan pendientes.', bd.enLinea ? 'success' : 'info');
+        if (window.App && App.estado) App.actualizarEstado().catch(() => {});
+      };
+      cont.querySelector('#demo-reiniciar').onclick = async () => {
+        if (!(await UI.confirmar('Reiniciar demo', 'Se borran las ventas, productos y clientes que creaste y vuelven los datos de ejemplo. ¿Continuar?'))) return;
+        try { localStorage.removeItem(CLAVE_BD); sessionStorage.clear(); localStorage.removeItem('agropos_sesion'); } catch { /* nada */ }
+        bd = crearBD();
+        guardar();
+        location.reload();
+      };
+    },
+  };
+})();
+
+</script>
+<script>
+// Controlador del panel: sesión, navegación entre vistas y estado general.
+const App = {
+  vistas: {},     // cada módulo se registra aquí: { iniciar(), mostrar() }
+  estado: null,   // último /api/estado
+  vistaActual: null,
+
+  registrar(nombre, modulo) {
+    this.vistas[nombre] = modulo;
+  },
+
+  async iniciar() {
+    if (!Sesion.token) {
+      Demo.ir('login');
+      return;
+    }
+    const usuario = Sesion.usuario;
+    document.getElementById('usuario-nombre').textContent = `${usuario.nombre} (${usuario.rol === 'admin' ? 'Administrador' : 'Cajero'})`;
+    if (!Sesion.esAdmin) document.querySelectorAll('.solo-admin').forEach((el) => el.classList.add('oculto'));
+    UI.reloj(document.getElementById('reloj'));
+
+    document.querySelectorAll('[data-vista]').forEach((b) => b.addEventListener('click', () => this.mostrar(b.dataset.vista)));
+    document.getElementById('btn-salir').addEventListener('click', () => this.salir());
+
+    try {
+      await this.actualizarEstado();
+    } catch (e) {
+      UI.error(e);
+    }
+    const esNube = this.estado?.modo === 'nube';
+    document.getElementById('etiqueta-caja').textContent = esNube ? 'NUBE' : this.estado?.caja_id || '';
+    if (esNube) {
+      // En la nube no se vende: solo se consultan reportes consolidados.
+      document.querySelectorAll('[data-vista="ventas"]').forEach((el) => el.classList.add('oculto'));
+      document.getElementById('pill-nube').classList.add('oculto');
+    }
+
+    for (const [nombre, modulo] of Object.entries(this.vistas)) {
+      if (esNube && nombre === 'ventas') continue;
+      try {
+        await modulo.iniciar?.();
+      } catch (e) {
+        UI.error(e);
+      }
+    }
+    this.mostrar(esNube ? (Sesion.esAdmin ? 'reportes' : 'inventario') : 'ventas');
+    setInterval(() => this.actualizarEstado().catch(() => this.pintarSinServidor()), 5000);
+  },
+
+  mostrar(nombre) {
+    if (!this.vistas[nombre]) return;
+    this.vistaActual = nombre;
+    document.querySelectorAll('.view').forEach((v) => v.classList.toggle('active', v.id === 'vista-' + nombre));
+    document.querySelectorAll('[data-vista]').forEach((b) => b.classList.toggle('active', b.dataset.vista === nombre));
+    this.vistas[nombre].mostrar?.();
+  },
+
+  async actualizarEstado() {
+    this.estado = await Api.get('/estado');
+    const pill = document.getElementById('pill-nube');
+    const nube = this.estado.nube;
+    if (nube) {
+      pill.className = 'pill ' + (nube.conectada ? 'ok' : 'mal');
+      pill.innerHTML = nube.conectada
+        ? '<i class="fa-solid fa-cloud"></i> En línea'
+        : `<i class="fa-solid fa-cloud-arrow-up"></i> Sin conexión${nube.pendientes ? ` · ${nube.pendientes} por subir` : ''}`;
+    }
+    this.vistas.ventas?.pintarEstado?.(this.estado);
+  },
+
+  pintarSinServidor() {
+    const pill = document.getElementById('pill-nube');
+    pill.className = 'pill mal';
+    pill.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Servidor local detenido';
+  },
+
+  async salir() {
+    if (this.vistas.ventas?.hayCarrito?.() && !(await UI.confirmar('Cerrar sesión', 'Hay productos en el carrito. ¿Salir de todas formas?'))) return;
+    Sesion.cerrar();
+    Demo.ir('login');
+  },
+};
+
+</script>
+<script>
+// Panel de ventas: productos, báscula, carrito, cobro multimoneda y estado.
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  const BILLETES = {
+    COP: [2000, 5000, 10000, 20000, 50000, 100000],
+    USD: [1, 5, 10, 20, 50, 100],
+    VES: [50, 100, 200, 500, 1000],
+  };
+
+  const st = {
+    productos: [],
+    categorias: [],
+    carrito: [],        // { producto, cantidad, captura_id, fuente }
+    cliente: null,
+    puntosRedimir: 0,
+    reglas: { pesos_por_punto: 1000, valor_punto: 10 },
+    metodo: 'efectivo',
+    moneda: 'COP',
+    pagos: [],          // pagos ya agregados (pagos mixtos)
+    tasas: { USD: 0, VES: 0 },
+    inicioAtencion: null,
+    bascula: null,
+    fuenteBascula: null,
+    cobrando: false,
+  };
+
+  // ---------------- Productos ----------------
+  async function cargarProductos() {
+    st.productos = await Api.get('/productos');
+    pintarProductos();
+    pintarStockBajo();
+  }
+
+  function filtrarProductos() {
+    const texto = $('buscar-producto').value.trim().toLowerCase();
+    const cat = $('filtro-categoria').value;
+    return st.productos.filter((p) =>
+      (!cat || String(p.categoria_id) === cat) &&
+      (!texto || p.nombre.toLowerCase().includes(texto) || p.plu.toLowerCase().startsWith(texto)));
+  }
+
+  function etiquetaStock(p) {
+    if (p.stock <= 0) return '<span class="badge agotado">agotado</span>';
+    if (p.stock_bajo) return '<span class="badge bajo">stock bajo</span>';
+    return '';
+  }
+
+  function pintarProductos() {
+    const lista = filtrarProductos();
+    const cont = $('lista-productos');
+    if (!lista.length) {
+      cont.innerHTML = '<p class="empty">No hay productos con esa búsqueda.</p>';
+      return;
+    }
+    cont.innerHTML = lista.map((p) => `
+      <button class="product-card" data-id="${p.id}">
+        <div class="product-info">
+          <div class="product-img">${UI.escapar(p.emoji || '🛒')}</div>
+          <div class="product-details">
+            <div class="name">${UI.escapar(p.nombre)} ${etiquetaStock(p)}</div>
+            <div class="price">${Formato.pesos(p.precio)} / ${p.unidad === 'kg' ? 'kg' : 'und'}</div>
+            <div class="plu">PLU ${UI.escapar(p.plu)} · Stock ${Formato.cantidad(p.stock, p.unidad)}</div>
+          </div>
+        </div>
+        <span class="btn-add">${p.unidad === 'kg' ? '<i class="fa-solid fa-scale-balanced"></i> Pesar' : '<i class="fa-solid fa-plus"></i> Agregar'}</span>
+      </button>`).join('');
+  }
+
+  async function agregarProducto(producto) {
+    if (!producto) return;
+    try {
+      if (producto.unidad === 'kg') {
+        const captura = await Api.post('/bascula/capturar');
+        st.carrito.push({ producto, cantidad: captura.peso, captura_id: captura.id, fuente: captura.fuente });
+        UI.toast(`${producto.nombre}: ${Formato.kg(captura.peso)}`, 'success');
+      } else {
+        const linea = st.carrito.find((l) => l.producto.id === producto.id);
+        if (linea) linea.cantidad += 1;
+        else st.carrito.push({ producto, cantidad: 1, fuente: 'unidad' });
+      }
+      if (producto.stock <= 0) UI.toast(`Atención: ${producto.nombre} no tiene stock registrado.`, 'error');
+      if (!st.inicioAtencion) st.inicioAtencion = new Date();
+      pintarCarrito();
+    } catch (e) {
+      UI.error(e);
+    }
+  }
+
+  // ---------------- Báscula ----------------
+  function conectarBascula() {
+    if (st.fuenteBascula) st.fuenteBascula.close();
+    const fuente = new EventSource('/api/bascula/flujo?token=' + encodeURIComponent(Sesion.token));
+    fuente.onmessage = (e) => pintarBascula(JSON.parse(e.data));
+    fuente.onerror = () => pintarBascula({ ...(st.bascula || {}), conectada: false, error: 'Sin comunicación con el servidor' });
+    st.fuenteBascula = fuente;
+  }
+
+  function pintarBascula(b) {
+    st.bascula = b;
+    const gauge = $('gauge');
+    $('peso-valor').textContent = (b.neto ?? 0).toFixed(3);
+    gauge.classList.toggle('desconectada', !b.conectada);
+    gauge.classList.toggle('inestable', b.conectada && !b.estable);
+    $('peso-estable').innerHTML = !b.conectada
+      ? `<span class="error-texto"><i class="fa-solid fa-plug-circle-xmark"></i> ${UI.escapar(b.error || 'Desconectada')}</span>`
+      : b.estable
+        ? '<span class="ok"><i class="fa-solid fa-check"></i> Estable</span>'
+        : '<span class="alerta"><i class="fa-solid fa-wave-square"></i> Estabilizando…</span>';
+    $('peso-tara').textContent = b.tara > 0 ? `Tara: ${Formato.kg(b.tara)}` : '';
+    const pill = $('pill-bascula');
+    pill.className = 'pill ' + (b.conectada ? 'ok' : 'mal');
+    pill.textContent = b.modo === 'simulador' ? 'Simulador' : b.conectada ? b.puerto : 'Desconectada';
+    $('simulador').classList.toggle('oculto', b.modo !== 'simulador');
+  }
+
+  async function accionBascula(ruta, cuerpo) {
+    try {
+      pintarBascula(await Api.post('/bascula/' + ruta, cuerpo));
+    } catch (e) {
+      UI.error(e);
+    }
+  }
+
+  // ---------------- Carrito y totales ----------------
+  function totales() {
+    const lineas = st.carrito.map((l) => ({ precio: l.producto.precio, cantidad: l.cantidad, iva: l.producto.iva }));
+    return Dinero.calcularVenta(lineas, st.puntosRedimir * st.reglas.valor_punto);
+  }
+
+  function pintarCarrito() {
+    const cont = $('carrito');
+    $('titulo-carrito').textContent = `Carrito de venta (${st.carrito.length})`;
+    if (!st.carrito.length) {
+      cont.innerHTML = '<p class="empty">Toca un producto para agregarlo.<br>Los productos por kg se pesan en la báscula.</p>';
+    } else {
+      cont.innerHTML = st.carrito.map((l, i) => {
+        const total = Math.round(l.producto.precio * l.cantidad);
+        const spec = l.producto.unidad === 'kg'
+          ? `${Formato.kg(l.cantidad)} × ${Formato.pesos(l.producto.precio)}/kg${l.fuente === 'simulador' ? ' · simulado' : ''}`
+          : `${l.cantidad} × ${Formato.pesos(l.producto.precio)}`;
+        const botonesCantidad = l.producto.unidad === 'und'
+          ? `<button class="qty-btn" data-menos="${i}">−</button><button class="qty-btn" data-mas="${i}">+</button>` : '';
+        return `
+          <div class="cart-item">
+            <div class="cart-item-details">
+              <span>${UI.escapar(l.producto.emoji || '🛒')}</span>
+              <div><div>${UI.escapar(l.producto.nombre)}</div><div class="cart-item-spec">${spec}</div></div>
+            </div>
+            <div class="cart-item-actions">
+              ${botonesCantidad}
+              <span class="num">${Formato.pesos(total)}</span>
+              <button class="icon-btn borrar" data-quitar="${i}" title="Quitar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+    pintarCobro();
+  }
+
+  function limiteRedimir(t) {
+    if (!st.cliente || !st.reglas.valor_punto) return 0;
+    return Math.min(st.cliente.puntos, Math.floor(t.total_bruto / st.reglas.valor_punto));
+  }
+
+  // Pagos que se enviarían ahora: los agregados + lo escrito en "Recibido".
+  function pagosActuales(total) {
+    const pagos = [...st.pagos];
+    const escrito = Formato.leerNumero($('monto-recibido').value);
+    if (escrito > 0) {
+      pagos.push({ metodo: st.metodo, moneda: st.moneda, monto: escrito });
+    } else if (st.metodo !== 'efectivo' && total > 0) {
+      // Tarjeta, transferencia o pago digital: por defecto se cobra exactamente lo que falta.
+      const falta = Dinero.calcularCobro(total, pagos, st.tasas).falta;
+      if (falta > 0) pagos.push({ metodo: st.metodo, moneda: st.moneda, monto: montoEnMoneda(falta, st.moneda), automatico: true });
+    }
+    return pagos;
+  }
+
+  function montoEnMoneda(pesos, moneda) {
+    return moneda === 'COP' ? pesos : Dinero.dePesos(pesos, moneda, st.tasas);
+  }
+
+  function pintarCobro() {
+    const t = totales();
+    $('carrito-total').textContent = Formato.pesos(t.total_bruto);
+    $('res-bruto').textContent = Formato.pesos(t.total_bruto);
+    $('res-descuento').textContent = '−' + Formato.pesos(t.descuento);
+    $('linea-descuento').classList.toggle('oculto', !t.descuento);
+    $('res-iva').textContent = Formato.pesos(t.iva);
+    $('res-redondeo').textContent = (t.redondeo > 0 ? '+' : t.redondeo < 0 ? '−' : '') + Formato.pesos(Math.abs(t.redondeo));
+    $('res-total').textContent = Formato.pesos(t.total);
+    $('eq-cop').textContent = Formato.pesos(t.total);
+    $('eq-usd').textContent = Formato.moneda(Dinero.dePesos(t.total, 'USD', st.tasas), 'USD');
+    $('eq-ves').textContent = Formato.moneda(Dinero.dePesos(t.total, 'VES', st.tasas), 'VES');
+
+    // Pagos agregados
+    $('pagos-lista').innerHTML = st.pagos.map((p, i) => `
+      <div class="pago-item">
+        <span><i class="fa-solid ${METODOS[p.metodo].icono}"></i> ${METODOS[p.metodo].nombre} · ${Formato.moneda(p.monto, p.moneda)}
+          ${p.moneda !== 'COP' ? `<span class="muted">(${Formato.pesos(Dinero.aPesos(p.monto, p.moneda, st.tasas))})</span>` : ''}</span>
+        <button class="icon-btn borrar" data-quitar-pago="${i}"><i class="fa-solid fa-xmark"></i></button>
+      </div>`).join('');
+
+    // Falta / cambio
+    const pagos = pagosActuales(t.total);
+    const cobro = Dinero.calcularCobro(t.total, pagos, st.tasas);
+    const caja = $('cambio');
+    if (!st.carrito.length) {
+      caja.innerHTML = '';
+    } else if (cobro.errores.length && pagos.length) {
+      caja.innerHTML = `<div class="cambio-box falta"><span class="error-texto">${UI.escapar(cobro.errores[0])}</span></div>`;
+    } else if (!pagos.length || cobro.falta > 0) {
+      const falta = pagos.length ? cobro.falta : t.total;
+      caja.innerHTML = `
+        <div class="cambio-box falta">
+          <div>${pagos.length ? 'Falta por pagar' : 'Por cobrar'}</div>
+          <div class="cambio-monto">${Formato.pesos(falta)}</div>
+          ${st.moneda !== 'COP' ? `<div class="muted">≈ ${Formato.moneda(montoEnMoneda(falta, st.moneda), st.moneda)}</div>` : ''}
+        </div>`;
+    } else {
+      caja.innerHTML = `
+        <div class="cambio-box">
+          <div>Cambio a entregar (en pesos)</div>
+          <div class="cambio-monto">${Formato.pesos(cobro.cambio)}</div>
+          <div class="desglose">${cobro.desglose.map((d) =>
+            `<span class="${d.tipo}">${d.cantidad} × ${Formato.pesos(d.valor)}</span>`).join('') || '<span>Sin cambio</span>'}</div>
+        </div>`;
+    }
+    $('btn-confirmar').disabled = !st.carrito.length || !cobro.completo || st.cobrando;
+    pintarCliente(t);
+  }
+
+  function pintarMediosDePago() {
+    $('metodos').innerHTML = Object.entries(METODOS).map(([clave, m]) => `
+      <button class="pm-btn ${st.metodo === clave ? 'active' : ''}" data-metodo="${clave}">
+        <i class="fa-solid ${m.icono}"></i><span>${m.nombre}</span></button>`).join('');
+    $('monedas').innerHTML = Dinero.MONEDAS.map((m) =>
+      `<button class="moneda-btn ${st.moneda === m ? 'active' : ''}" data-moneda="${m}">${m}</button>`).join('');
+    $('billetes-rapidos').innerHTML =
+      `<button class="btn chico contorno" data-exacto>Exacto</button>` +
+      BILLETES[st.moneda].map((b) => `<button class="btn chico secundario" data-billete="${b}">+${Formato.moneda(b, st.moneda).replace(',00', '')}</button>`).join('') +
+      `<button class="btn chico contorno" data-limpiar title="Borrar"><i class="fa-solid fa-delete-left"></i></button>`;
+    $('monto-recibido').placeholder = `Recibido en ${NOMBRE_MONEDA[st.moneda]}`;
+  }
+
+  function agregarPagoEscrito() {
+    const monto = Formato.leerNumero($('monto-recibido').value);
+    if (!(monto > 0)) {
+      UI.toast('Escribe el monto recibido.', 'error');
+      return;
+    }
+    st.pagos.push({ metodo: st.metodo, moneda: st.moneda, monto });
+    $('monto-recibido').value = '';
+    pintarCobro();
+  }
+
+  // ---------------- Cliente y puntos ----------------
+  async function buscarCliente() {
+    const cedula = $('cedula').value.replace(/[.\s-]/g, '');
+    if (!cedula) return;
+    try {
+      st.cliente = await Api.get('/clientes/' + encodeURIComponent(cedula));
+      st.reglas = { pesos_por_punto: st.cliente.pesos_por_punto, valor_punto: st.cliente.valor_punto };
+      st.puntosRedimir = 0;
+      pintarCobro();
+    } catch (e) {
+      if (/no registrado/i.test(e.message)) Clientes.formulario({ cedula }, (nuevo) => { st.cliente = nuevo; st.puntosRedimir = 0; pintarCobro(); });
+      else UI.error(e);
+    }
+  }
+
+  function pintarCliente(t) {
+    const cont = $('cliente-info');
+    if (!st.cliente) {
+      cont.innerHTML = '';
+      return;
+    }
+    const maximo = limiteRedimir(t);
+    if (st.puntosRedimir > maximo) st.puntosRedimir = maximo;
+    const ganara = st.reglas.pesos_por_punto ? Math.floor(t.total / st.reglas.pesos_por_punto) : 0;
+    const campoActivo = document.activeElement?.id === 'puntos-redimir';
+    if (campoActivo) return; // no redibujar mientras escribe
+    cont.innerHTML = `
+      <div class="cliente-datos">
+        <div><strong>${UI.escapar(st.cliente.nombre)}</strong><br>
+          <span class="muted">CC ${UI.escapar(st.cliente.cedula)} · <span class="puntos">${Formato.numero(st.cliente.puntos)} pts</span>
+          ${ganara ? ` · ganará ${ganara}` : ''}</span></div>
+        <button class="icon-btn borrar" id="btn-quitar-cliente" title="Quitar cliente"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      ${maximo > 0 ? `
+      <div class="cliente-datos">
+        <span class="muted">Redimir puntos (máx. ${maximo} = ${Formato.pesos(maximo * st.reglas.valor_punto)})</span>
+        <input class="input" id="puntos-redimir" type="number" min="0" max="${maximo}" value="${st.puntosRedimir || ''}" style="width:90px" placeholder="0">
+      </div>` : ''}`;
+  }
+
+  // ---------------- Confirmar venta ----------------
+  async function confirmar() {
+    const t = totales();
+    const pagos = pagosActuales(t.total).map(({ metodo, moneda, monto }) => ({ metodo, moneda, monto }));
+    const cobro = Dinero.calcularCobro(t.total, pagos, st.tasas);
+    if (!st.carrito.length || !cobro.completo) return;
+    st.cobrando = true;
+    $('btn-confirmar').disabled = true;
+    try {
+      const venta = await Api.post('/ventas', {
+        items: st.carrito.map((l) => l.producto.unidad === 'kg'
+          ? { producto_id: l.producto.id, captura_id: l.captura_id }
+          : { producto_id: l.producto.id, cantidad: l.cantidad }),
+        cliente_cedula: st.cliente?.cedula || null,
+        puntos_redimir: st.puntosRedimir,
+        pagos,
+        inicio_atencion: st.inicioAtencion?.toISOString(),
+      });
+      limpiarVenta();
+      mostrarVentaHecha(venta);
+      cargarProductos();
+      cargarUltimasVentas();
+      App.actualizarEstado().catch(() => {});
+    } catch (e) {
+      UI.error(e);
+    } finally {
+      st.cobrando = false;
+      pintarCobro();
+    }
+  }
+
+  function mostrarVentaHecha(v) {
+    const desglose = v.desglose_cambio.map((d) => `<span class="${d.tipo}">${d.cantidad} × ${Formato.pesos(d.valor)}</span>`).join('');
+    UI.modal({
+      titulo: `<i class="fa-regular fa-circle-check ok"></i> Venta ${UI.escapar(v.numero)} registrada`,
+      html: `
+        <div class="summary-line total" style="border:none;margin:0"><span>Total</span><span>${Formato.pesos(v.total)}</span></div>
+        <div class="summary-line"><span>Recibido</span><span>${Formato.pesos(v.pagado_cop)}</span></div>
+        <div class="cambio-box" style="margin-top:10px">
+          <div>Cambio a entregar</div>
+          <div class="cambio-monto">${Formato.pesos(v.cambio_cop)}</div>
+          <div class="desglose">${desglose || '<span>Sin cambio</span>'}</div>
+        </div>
+        ${v.cliente_nombre ? `<p class="muted">${UI.escapar(v.cliente_nombre)}: +${v.puntos_ganados} puntos${v.puntos_redimidos ? `, −${v.puntos_redimidos} redimidos` : ''} · saldo ${v.cliente_puntos} pts</p>` : ''}
+        ${v.sin_conexion ? '<p class="muted"><i class="fa-solid fa-cloud-arrow-up"></i> Guardada sin conexión: se subirá a la nube cuando vuelva internet.</p>' : ''}`,
+      botones: [
+        { texto: 'Cerrar', clase: 'secundario' },
+        { texto: '<i class="fa-solid fa-receipt"></i> Ver recibo', accion: () => { abrirRecibo(v.id); return true; } },
+      ],
+    });
+  }
+
+  function abrirRecibo(id) {
+    Demo.recibo(id);
+  }
+
+  function limpiarVenta() {
+    st.carrito = [];
+    st.cliente = null;
+    st.puntosRedimir = 0;
+    st.pagos = [];
+    st.metodo = 'efectivo';
+    st.moneda = 'COP';
+    st.inicioAtencion = null;
+    $('cedula').value = '';
+    $('monto-recibido').value = '';
+    pintarMediosDePago();
+    pintarCarrito();
+  }
+
+  // ---------------- Tasa del día ----------------
+  async function cargarTasas() {
+    st.tasas = await Api.get('/tasas');
+    $('tasa-texto').textContent = st.tasas.USD
+      ? `Tasa: 1 USD = ${Formato.pesos(st.tasas.USD)} · 1 Bs = ${Formato.pesos(st.tasas.VES)}`
+      : 'Sin tasa del día';
+    pintarCobro();
+  }
+
+  function editarTasa() {
+    UI.modal({
+      titulo: 'Tasa del día',
+      html: `
+        <div class="form-grid">
+          <label class="campo">Pesos por 1 dólar (USD)<input class="input" name="USD" type="number" min="0" step="any" value="${st.tasas.USD || ''}"></label>
+          <label class="campo">Pesos por 1 bolívar (VES)<input class="input" name="VES" type="number" min="0" step="any" value="${st.tasas.VES || ''}"></label>
+          <p class="muted ancho">Última actualización: ${Formato.fecha(st.tasas.actualizado)} ${st.tasas.usuario ? '· ' + UI.escapar(st.tasas.usuario) : ''}</p>
+        </div>`,
+      botones: [
+        { texto: 'Cancelar', clase: 'secundario' },
+        {
+          texto: 'Guardar tasa',
+          accion: async (m) => {
+            const d = UI.datosFormulario(m.el);
+            await Api.post('/tasas', { USD: Number(d.USD), VES: Number(d.VES) });
+            await cargarTasas();
+            UI.toast('Tasa del día actualizada', 'success');
+            return true;
+          },
+        },
+      ],
+    });
+  }
+
+  // ---------------- Columna de estado ----------------
+  function itemEstado(ok, titulo, detalle, icono) {
+    return `
+      <div class="estado-item">
+        <i class="fa-solid fa-circle ${ok ? 'ok' : 'alerta'}"></i>
+        <div><div class="titulo"><i class="fa-solid ${icono}"></i> ${titulo}</div><div class="detalle">${detalle}</div></div>
+      </div>`;
+  }
+
+  function pintarEstado(e) {
+    const nube = e.nube || {};
+    const b = e.bascula || st.bascula || {};
+    $('estado-lista').innerHTML = [
+      itemEstado(true, 'Caja ' + UI.escapar(e.caja_id || ''), 'Servidor local funcionando', 'fa-desktop'),
+      itemEstado(nube.conectada, nube.conectada ? 'Nube conectada' : 'Sin conexión a la nube',
+        (nube.pendientes ? `${nube.pendientes} venta(s) por subir` : 'Todo sincronizado') +
+        (nube.error && !nube.conectada ? `<br>${UI.escapar(nube.error)}` : '') +
+        (nube.ultimaSincronizacion ? `<br>Última subida: ${Formato.fecha(nube.ultimaSincronizacion)}` : ''), 'fa-cloud'),
+      itemEstado(b.conectada, b.modo === 'simulador' ? 'Báscula: simulador' : `Báscula ${UI.escapar(b.puerto || '')}`,
+        b.conectada ? 'Recibiendo peso' : UI.escapar(b.error || 'Desconectada'), 'fa-scale-balanced'),
+      itemEstado(!e.inventario.stock_bajo, 'Inventario',
+        `${e.inventario.productos} productos · ${e.inventario.stock_bajo} con stock bajo · ${e.inventario.agotados} agotados`, 'fa-boxes-stacked'),
+    ].join('');
+  }
+
+  function pintarStockBajo() {
+    const bajos = st.productos.filter((p) => p.stock_bajo).sort((a, b) => a.stock / (a.stock_minimo || 1) - b.stock / (b.stock_minimo || 1));
+    $('n-stock-bajo').textContent = bajos.length;
+    $('lista-stock-bajo').innerHTML = bajos.slice(0, 8).map((p) => `
+      <div class="fila"><span>${UI.escapar(p.emoji || '')} ${UI.escapar(p.nombre)}</span>
+        <span class="${p.stock <= 0 ? 'error-texto' : 'alerta'} num">${Formato.cantidad(p.stock, p.unidad)}</span></div>`).join('')
+      || '<p class="empty">Todo el inventario está bien.</p>';
+  }
+
+  async function cargarUltimasVentas() {
+    const ventas = await Api.get('/ventas?limite=6');
+    $('ultimas-ventas').innerHTML = ventas.map((v) => `
+      <div class="fila">
+        <span>${UI.escapar(v.numero.split('-').pop())} · ${UI.escapar(String(v.creado_en).slice(11, 16))}
+          ${v.sincronizada ? '' : '<i class="fa-solid fa-cloud-arrow-up alerta" title="Pendiente por subir"></i>'}</span>
+        <span class="num">${Formato.pesos(v.total)}
+          <button class="icon-btn" data-recibo="${v.id}" title="Reimprimir recibo"><i class="fa-solid fa-print"></i></button></span>
+      </div>`).join('') || '<p class="empty">Aún no hay ventas.</p>';
+  }
+
+  // ---------------- Eventos ----------------
+  function conectarEventos() {
+    $('buscar-producto').addEventListener('input', pintarProductos);
+    $('buscar-producto').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const texto = e.target.value.trim().toLowerCase();
+        const lista = filtrarProductos();
+        const exacto = st.productos.find((p) => p.plu.toLowerCase() === texto) || (lista.length === 1 ? lista[0] : null);
+        if (exacto) {
+          agregarProducto(exacto);
+          e.target.value = '';
+          pintarProductos();
+        }
+      } else if (e.key === 'Escape') {
+        e.target.value = '';
+        pintarProductos();
+      }
+    });
+    $('filtro-categoria').addEventListener('change', pintarProductos);
+    $('lista-productos').addEventListener('click', (e) => {
+      const card = e.target.closest('[data-id]');
+      if (card) agregarProducto(st.productos.find((p) => p.id === Number(card.dataset.id)));
+    });
+
+    $('btn-cero').addEventListener('click', () => accionBascula('cero'));
+    $('btn-tara').addEventListener('click', () => accionBascula('tara'));
+    $('simulador').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-sim]');
+      if (!b) return;
+      const peso = b.dataset.sim === 'azar' ? Math.round((0.2 + Math.random() * 3.3) * 1000) / 1000 : Number(b.dataset.sim);
+      accionBascula('simular', { peso });
+    });
+
+    $('carrito').addEventListener('click', (e) => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      if (b.dataset.quitar !== undefined) st.carrito.splice(Number(b.dataset.quitar), 1);
+      if (b.dataset.mas !== undefined) st.carrito[Number(b.dataset.mas)].cantidad += 1;
+      if (b.dataset.menos !== undefined) {
+        const l = st.carrito[Number(b.dataset.menos)];
+        if (l.cantidad > 1) l.cantidad -= 1;
+      }
+      if (!st.carrito.length) st.inicioAtencion = null;
+      pintarCarrito();
+    });
+    $('btn-vaciar').addEventListener('click', async () => {
+      if (st.carrito.length && (await UI.confirmar('Vaciar carrito', '¿Quitar todos los productos del carrito?'))) limpiarVenta();
+    });
+
+    $('btn-buscar-cliente').addEventListener('click', buscarCliente);
+    $('cedula').addEventListener('keydown', (e) => { if (e.key === 'Enter') buscarCliente(); });
+    $('cliente-info').addEventListener('click', (e) => {
+      if (e.target.closest('#btn-quitar-cliente')) {
+        st.cliente = null;
+        st.puntosRedimir = 0;
+        $('cedula').value = '';
+        pintarCobro();
+      }
+    });
+    $('cliente-info').addEventListener('input', (e) => {
+      if (e.target.id !== 'puntos-redimir') return;
+      const maximo = limiteRedimir(Dinero.calcularVenta(st.carrito.map((l) => ({ precio: l.producto.precio, cantidad: l.cantidad, iva: l.producto.iva })), 0));
+      st.puntosRedimir = Math.max(0, Math.min(maximo, Math.floor(Number(e.target.value) || 0)));
+      pintarCobro();
+    });
+    $('cliente-info').addEventListener('focusout', () => setTimeout(pintarCobro, 0));
+
+    $('metodos').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-metodo]');
+      if (!b) return;
+      st.metodo = b.dataset.metodo;
+      pintarMediosDePago();
+      pintarCobro();
+    });
+    $('monedas').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-moneda]');
+      if (!b) return;
+      st.moneda = b.dataset.moneda;
+      $('monto-recibido').value = '';
+      pintarMediosDePago();
+      pintarCobro();
+    });
+    $('billetes-rapidos').addEventListener('click', (e) => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      const input = $('monto-recibido');
+      if (b.dataset.limpiar !== undefined) {
+        input.value = '';
+      } else if (b.dataset.exacto !== undefined) {
+        const t = totales();
+        const falta = Dinero.calcularCobro(t.total, st.pagos, st.tasas).falta || (st.pagos.length ? 0 : t.total);
+        const monto = st.moneda === 'COP' ? falta : Math.ceil((falta / Dinero.tasaDe(st.moneda, st.tasas)) * 100) / 100;
+        input.value = monto ? Formato.numero(monto, st.moneda === 'COP' ? 0 : 2) : '';
+      } else {
+        const actual = Formato.leerNumero(input.value);
+        input.value = Formato.numero(actual + Number(b.dataset.billete), st.moneda === 'COP' ? 0 : 2);
+      }
+      pintarCobro();
+    });
+    $('monto-recibido').addEventListener('input', pintarCobro);
+    $('monto-recibido').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !$('btn-confirmar').disabled) confirmar();
+    });
+    $('btn-agregar-pago').addEventListener('click', agregarPagoEscrito);
+    $('pagos-lista').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-quitar-pago]');
+      if (b) {
+        st.pagos.splice(Number(b.dataset.quitarPago), 1);
+        pintarCobro();
+      }
+    });
+    $('btn-confirmar').addEventListener('click', confirmar);
+    $('btn-tasa').addEventListener('click', editarTasa);
+
+    $('btn-sincronizar').addEventListener('click', async () => {
+      try {
+        const r = await Api.post('/estado/sincronizar');
+        UI.toast(r.conectada ? `Sincronizado. Pendientes: ${r.pendientes}` : r.error || 'Sin conexión con la nube', r.conectada ? 'success' : 'error');
+        App.actualizarEstado();
+        cargarUltimasVentas();
+      } catch (e) {
+        UI.error(e);
+      }
+    });
+    $('ultimas-ventas').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-recibo]');
+      if (b) abrirRecibo(b.dataset.recibo);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (App.vistaActual !== 'ventas') return;
+      if (e.key === 'F2') {
+        e.preventDefault();
+        $('buscar-producto').focus();
+      }
+    });
+  }
+
+  App.registrar('ventas', {
+    async iniciar() {
+      conectarEventos();
+      pintarMediosDePago();
+      st.categorias = await Api.get('/productos/categorias');
+      $('filtro-categoria').innerHTML = '<option value="">Todas las categorías</option>' +
+        st.categorias.map((c) => `<option value="${c.id}">${UI.escapar(c.emoji || '')} ${UI.escapar(c.nombre)}</option>`).join('');
+      Api.get('/clientes/reglas').then((r) => { st.reglas = r; }).catch(() => {});
+      await Promise.all([cargarProductos(), cargarTasas(), cargarUltimasVentas()]);
+      pintarCarrito();
+      conectarBascula();
+      if (App.estado) pintarEstado(App.estado);
+      setInterval(() => {
+        cargarProductos().catch(() => {});
+        cargarTasas().catch(() => {});
+      }, 60000);
+    },
+    mostrar() {
+      $('buscar-producto').focus();
+    },
+    pintarEstado,
+    hayCarrito: () => st.carrito.length > 0,
+    recargarProductos: () => cargarProductos(),
+  });
+})();
+
+</script>
+<script>
+// Inventario: lista de productos, crear/editar (admin) y recepción de mercancía por lotes.
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let productos = [];
+  let categorias = [];
+
+  async function cargar() {
+    const inactivos = Sesion.esAdmin && $('inv-inactivos').checked;
+    productos = await Api.get('/productos' + (inactivos ? '?todos=1' : ''));
+    pintarTabla();
+  }
+
+  function pintarTabla() {
+    const texto = $('inv-buscar').value.trim().toLowerCase();
+    const soloBajo = $('inv-solo-bajo').checked;
+    const lista = productos.filter((p) =>
+      (!texto || p.nombre.toLowerCase().includes(texto) || p.plu.toLowerCase().startsWith(texto)) &&
+      (!soloBajo || p.stock_bajo));
+    $('tabla-inventario').innerHTML = lista.map((p) => {
+      const estado = !p.activo ? '<span class="badge gris">inactivo</span>'
+        : p.stock <= 0 ? '<span class="badge agotado">agotado</span>'
+          : p.stock_bajo ? '<span class="badge bajo">stock bajo</span>'
+            : '<span class="badge bien">ok</span>';
+      return `
+        <tr>
+          <td>${UI.escapar(p.plu)}</td>
+          <td>${UI.escapar(p.emoji || '')} ${UI.escapar(p.nombre)}</td>
+          <td>${UI.escapar(p.categoria || '—')}</td>
+          <td class="num">${Formato.pesos(p.precio)}/${p.unidad}</td>
+          <td class="num">${p.iva}%</td>
+          <td class="num">${Formato.cantidad(p.stock, p.unidad)}</td>
+          <td class="num">${Formato.cantidad(p.stock_minimo, p.unidad)}</td>
+          <td>${estado}</td>
+          <td class="${Sesion.esAdmin ? '' : 'oculto'}"><button class="icon-btn" data-editar="${p.id}" title="Editar"><i class="fa-solid fa-pen"></i></button></td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="9" class="empty">No hay productos.</td></tr>';
+  }
+
+  function formularioProducto(p = {}) {
+    const nuevo = !p.id;
+    const opcionesCat = categorias.map((c) =>
+      `<option value="${c.id}" ${c.id === p.categoria_id ? 'selected' : ''}>${UI.escapar(c.nombre)}</option>`).join('');
+    UI.modal({
+      titulo: nuevo ? 'Nuevo producto' : `Editar ${UI.escapar(p.nombre)}`,
+      html: `
+        <div class="form-grid">
+          <label class="campo">PLU (código) <input class="input" name="plu" value="${UI.escapar(p.plu || '')}" maxlength="20"></label>
+          <label class="campo">Emoji <input class="input" name="emoji" value="${UI.escapar(p.emoji || '')}" maxlength="4"></label>
+          <label class="campo ancho">Nombre <input class="input" name="nombre" value="${UI.escapar(p.nombre || '')}"></label>
+          <label class="campo">Categoría <select class="select" name="categoria_id"><option value="">Sin categoría</option>${opcionesCat}</select></label>
+          <label class="campo">Se vende por
+            <select class="select" name="unidad">
+              <option value="kg" ${p.unidad !== 'und' ? 'selected' : ''}>Peso (kg, con báscula)</option>
+              <option value="und" ${p.unidad === 'und' ? 'selected' : ''}>Unidad</option>
+            </select></label>
+          <label class="campo">Precio (COP, IVA incluido) <input class="input" name="precio" type="number" min="0" value="${p.precio ?? ''}"></label>
+          <label class="campo">IVA
+            <select class="select" name="iva">${[0, 5, 19].map((v) => `<option value="${v}" ${Number(p.iva || 0) === v ? 'selected' : ''}>${v}%</option>`).join('')}</select></label>
+          ${nuevo ? '<label class="campo">Stock inicial <input class="input" name="stock" type="number" min="0" step="any" value="0"></label>' : ''}
+          <label class="campo">Stock mínimo (alerta) <input class="input" name="stock_minimo" type="number" min="0" step="any" value="${p.stock_minimo ?? 0}"></label>
+          ${nuevo ? '' : `<label class="check ancho"><input type="checkbox" name="activo" ${p.activo ? 'checked' : ''}> Producto activo (se muestra en ventas)</label>
+          <p class="muted ancho">Stock actual: ${Formato.cantidad(p.stock, p.unidad)}. El stock sube con la recepción de mercancía y baja con cada venta.</p>`}
+        </div>`,
+      botones: [
+        { texto: 'Cancelar', clase: 'secundario' },
+        {
+          texto: 'Guardar',
+          accion: async (m) => {
+            const d = UI.datosFormulario(m.el);
+            if (nuevo) await Api.post('/productos', d);
+            else await Api.put('/productos/' + p.id, d);
+            UI.toast('Producto guardado', 'success');
+            await cargar();
+            App.vistas.ventas?.recargarProductos?.();
+            return true;
+          },
+        },
+      ],
+    });
+  }
+
+  // ---------- Recepción de mercancía ----------
+  async function cargarRecepciones() {
+    const lista = await Api.get('/recepciones?limite=15');
+    $('lista-recepciones').innerHTML = lista.map((r) => `
+      <div class="lote-card">
+        <div class="lote-title">Lote ${UI.escapar(r.lote)} · ${Formato.fecha(r.creado_en)}</div>
+        <div>${UI.escapar(r.proveedor || 'Sin proveedor')} · ${UI.escapar(r.usuario_nombre || '')}</div>
+        ${r.items.slice(0, 6).map((i) => `<div>– ${UI.escapar(i.nombre)}: ${Formato.cantidad(i.cantidad, i.unidad)}${i.vence ? ` (vence ${i.vence})` : ''}</div>`).join('')}
+        ${r.items.length > 6 ? `<div>… y ${r.items.length - 6} más</div>` : ''}
+      </div>`).join('') || '<p class="empty">No hay recepciones.</p>';
+  }
+
+  function renglonLote() {
+    const opciones = productos.filter((p) => p.activo).map((p) =>
+      `<option value="${p.id}">${UI.escapar(p.plu)} · ${UI.escapar(p.nombre)} (${p.unidad})</option>`).join('');
+    return `
+      <div class="renglon-lote">
+        <select class="select" data-campo="producto_id"><option value="">Producto…</option>${opciones}</select>
+        <input class="input" data-campo="cantidad" type="number" min="0" step="any" placeholder="Cantidad">
+        <input class="input" data-campo="costo_unitario" type="number" min="0" step="any" placeholder="Costo">
+        <input class="input" data-campo="vence" type="date" title="Vence">
+        <button class="icon-btn borrar" data-quitar-renglon title="Quitar"><i class="fa-solid fa-xmark"></i></button>
+      </div>`;
+  }
+
+  function nuevaRecepcion() {
+    UI.modal({
+      titulo: 'Nuevo lote de mercancía',
+      ancho: true,
+      html: `
+        <div class="form-grid" style="margin-bottom:12px">
+          <label class="campo">Proveedor <input class="input" name="proveedor" placeholder="Ej: Cenabastos"></label>
+          <label class="campo">Notas <input class="input" name="notas" placeholder="Factura, placa, etc."></label>
+        </div>
+        <div class="muted" style="margin-bottom:6px">Producto · Cantidad (kg o und) · Costo por kg/und · Vencimiento</div>
+        <div id="renglones">${renglonLote()}${renglonLote()}${renglonLote()}</div>
+        <button class="btn chico secundario" id="btn-mas-renglon"><i class="fa-solid fa-plus"></i> Otro producto</button>`,
+      alAbrir: (m) => {
+        m.el.querySelector('#btn-mas-renglon').onclick = () => m.el.querySelector('#renglones').insertAdjacentHTML('beforeend', renglonLote());
+        m.el.querySelector('#renglones').addEventListener('click', (e) => {
+          if (e.target.closest('[data-quitar-renglon]')) e.target.closest('.renglon-lote').remove();
+        });
+      },
+      botones: [
+        { texto: 'Cancelar', clase: 'secundario' },
+        {
+          texto: '<i class="fa-solid fa-check"></i> Registrar lote',
+          accion: async (m) => {
+            const items = [...m.el.querySelectorAll('.renglon-lote')].map((r) => {
+              const d = {};
+              r.querySelectorAll('[data-campo]').forEach((el) => { d[el.dataset.campo] = el.value; });
+              return d;
+            }).filter((d) => d.producto_id && d.cantidad);
+            const cabecera = UI.datosFormulario(m.el.querySelector('.form-grid'));
+            const r = await Api.post('/recepciones', { ...cabecera, items });
+            UI.toast(`Lote ${r.lote} registrado: ${r.items.length} producto(s)`, 'success');
+            await Promise.all([cargar(), cargarRecepciones()]);
+            App.vistas.ventas?.recargarProductos?.();
+            return true;
+          },
+        },
+      ],
+    });
+  }
+
+  App.registrar('inventario', {
+    async iniciar() {
+      categorias = await Api.get('/productos/categorias');
+      $('inv-buscar').addEventListener('input', pintarTabla);
+      $('inv-solo-bajo').addEventListener('change', pintarTabla);
+      $('inv-inactivos').addEventListener('change', cargar);
+      $('btn-nuevo-producto').addEventListener('click', () => formularioProducto());
+      $('btn-nueva-recepcion').addEventListener('click', nuevaRecepcion);
+      $('tabla-inventario').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-editar]');
+        if (b) formularioProducto(productos.find((p) => p.id === Number(b.dataset.editar)));
+      });
+    },
+    async mostrar() {
+      try {
+        await Promise.all([cargar(), cargarRecepciones()]);
+      } catch (e) {
+        UI.error(e);
+      }
+    },
+  });
+})();
+
+</script>
+<script>
+// Clientes y fidelización (también lo usa el panel de ventas para registrar).
+const Clientes = (function () {
+  const $ = (id) => document.getElementById(id);
+  let temporizador = null;
+
+  async function cargar() {
+    const texto = $('cli-buscar').value.trim();
+    const lista = await Api.get('/clientes?buscar=' + encodeURIComponent(texto));
+    $('tabla-clientes').innerHTML = lista.map((c) => `
+      <tr>
+        <td>${UI.escapar(c.cedula)}</td>
+        <td>${UI.escapar(c.nombre)}</td>
+        <td>${UI.escapar(c.telefono || '—')}</td>
+        <td class="num puntos">${Formato.numero(c.puntos)}</td>
+        <td class="num">${c.compras}</td>
+        <td>${Formato.fecha(c.creado_en)}</td>
+        <td><button class="icon-btn" data-editar="${UI.escapar(c.cedula)}" title="Editar"><i class="fa-solid fa-pen"></i></button></td>
+      </tr>`).join('') || '<tr><td colspan="7" class="empty">No hay clientes.</td></tr>';
+  }
+
+  async function pintarReglas() {
+    const r = await Api.get('/clientes/reglas');
+    $('reglas-puntos').textContent =
+      `El cliente gana 1 punto por cada ${Formato.pesos(r.pesos_por_punto)} pagados. Cada punto vale ${Formato.pesos(r.valor_punto)} al redimir.`;
+  }
+
+  // Formulario para registrar o editar. "alGuardar" recibe el cliente guardado.
+  function formulario(c = {}, alGuardar) {
+    const existe = Boolean(c.id);
+    UI.modal({
+      titulo: existe ? 'Editar cliente' : 'Registrar cliente',
+      html: `
+        <div class="form-grid">
+          <label class="campo">Cédula <input class="input" name="cedula" value="${UI.escapar(c.cedula || '')}" ${existe ? 'disabled' : ''} inputmode="numeric"></label>
+          <label class="campo">Teléfono <input class="input" name="telefono" value="${UI.escapar(c.telefono || '')}" inputmode="tel"></label>
+          <label class="campo ancho">Nombre completo <input class="input" name="nombre" value="${UI.escapar(c.nombre || '')}"></label>
+          ${existe ? `<p class="muted ancho">Puntos: ${Formato.numero(c.puntos)} · Compras: ${c.compras}</p>` : '<p class="muted ancho">El cliente empieza con 0 puntos y los acumula con cada compra.</p>'}
+        </div>`,
+      alAbrir: (m) => { if (!existe && c.cedula) m.el.querySelector('[name="nombre"]').focus(); },
+      botones: [
+        { texto: 'Cancelar', clase: 'secundario' },
+        {
+          texto: 'Guardar',
+          accion: async (m) => {
+            const d = UI.datosFormulario(m.el);
+            const guardado = existe
+              ? await Api.put('/clientes/' + encodeURIComponent(c.cedula), d)
+              : await Api.post('/clientes', d);
+            UI.toast(existe ? 'Cliente actualizado' : `Cliente ${guardado.nombre} registrado`, 'success');
+            if (App.vistaActual === 'clientes') cargar();
+            alGuardar?.(guardado);
+            return true;
+          },
+        },
+      ],
+    });
+  }
+
+  App.registrar('clientes', {
+    iniciar() {
+      $('cli-buscar').addEventListener('input', () => {
+        clearTimeout(temporizador);
+        temporizador = setTimeout(() => cargar().catch(UI.error.bind(UI)), 250);
+      });
+      $('btn-nuevo-cliente').addEventListener('click', () => formulario());
+      $('tabla-clientes').addEventListener('click', async (e) => {
+        const b = e.target.closest('[data-editar]');
+        if (!b) return;
+        try {
+          formulario(await Api.get('/clientes/' + encodeURIComponent(b.dataset.editar)));
+        } catch (err) {
+          UI.error(err);
+        }
+      });
+    },
+    async mostrar() {
+      try {
+        await Promise.all([cargar(), pintarReglas()]);
+      } catch (e) {
+        UI.error(e);
+      }
+    },
+  });
+
+  return { formulario };
+})();
+
+</script>
+<script>
+// Reportes (solo administradores).
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const NOMBRE_FUENTE = { bascula: 'Báscula', simulador: 'Simulador', manual: 'Digitado (admin)' };
+
+  function filtros() {
+    const p = new URLSearchParams({ desde: $('rep-desde').value, hasta: $('rep-hasta').value });
+    if ($('rep-caja').value) p.set('caja', $('rep-caja').value);
+    return p;
+  }
+
+  const kpi = (etiqueta, valor, nota = '') =>
+    `<div class="kpi"><div class="etiqueta">${etiqueta}</div><div class="valor">${valor}</div><div class="nota">${nota}</div></div>`;
+
+  function tabla(titulo, columnas, filas) {
+    return `
+      <div class="panel-box">
+        <div class="box-header"><span class="box-title">${titulo}</span></div>
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr>${columnas.map((c) => `<th class="${c.num ? 'num' : ''}">${c.t}</th>`).join('')}</tr></thead>
+          <tbody>${filas.length ? filas.map((f) => `<tr>${columnas.map((c) => `<td class="${c.num ? 'num' : ''}">${c.v(f)}</td>`).join('')}</tr>`).join('')
+            : `<tr><td colspan="${columnas.length}" class="empty">Sin datos en este período.</td></tr>`}</tbody>
+        </table></div>
+      </div>`;
+  }
+
+  async function ver() {
+    try {
+      const r = await Api.get('/reportes?' + filtros());
+      const totalPagos = r.por_metodo.reduce((s, m) => s + m.monto_cop, 0) || 1;
+      $('reporte').innerHTML = `
+        <div class="kpis">
+          ${kpi('Ventas', Formato.numero(r.resumen.ventas), `Total ${Formato.pesos(r.resumen.total)}`)}
+          ${kpi('Ticket promedio', Formato.pesos(r.resumen.ticket_promedio), `IVA ${Formato.pesos(r.resumen.iva)}`)}
+          ${kpi('Tiempo promedio de atención', Formato.duracion(r.atencion.promedio_seg),
+            r.atencion.medidas ? `Mín ${Formato.duracion(r.atencion.minimo_seg)} · Máx ${Formato.duracion(r.atencion.maximo_seg)}` : 'Sin mediciones')}
+          ${kpi('Pesados con báscula', r.pesaje.porcentaje_bascula + '%', `${r.pesaje.con_bascula} de ${r.pesaje.lineas_por_peso} productos por peso`)}
+          ${kpi('Ventas sin conexión', Formato.numero(r.conexion.ventas_sin_conexion),
+            `${r.conexion.porcentaje}% · ${Formato.pesos(r.conexion.total_sin_conexion)} · ${r.conexion.pendientes_sincronizar} por subir`)}
+          ${kpi('Clientes que regresan', r.clientes.porcentaje_recurrentes + '%',
+            `${r.clientes.recurrentes} de ${r.clientes.identificados} clientes · ${r.clientes.porcentaje_ventas_con_cliente}% de ventas con cédula`)}
+        </div>
+        <div class="reportes-grid">
+          ${tabla('Ventas por moneda', [
+            { t: 'Moneda', v: (f) => NOMBRE_MONEDA[f.moneda] || f.moneda },
+            { t: 'Pagos', num: true, v: (f) => f.pagos },
+            { t: 'Monto recibido', num: true, v: (f) => Formato.moneda(f.monto, f.moneda) },
+            { t: 'En pesos', num: true, v: (f) => Formato.pesos(f.monto_cop) },
+          ], r.por_moneda)}
+          ${tabla('Ventas por método de pago', [
+            { t: 'Método', v: (f) => METODOS[f.metodo]?.nombre || f.metodo },
+            { t: 'Pagos', num: true, v: (f) => f.pagos },
+            { t: 'En pesos', num: true, v: (f) => Formato.pesos(f.monto_cop) },
+            { t: '%', num: true, v: (f) => `${Math.round((f.monto_cop / totalPagos) * 100)}%<div class="barra"><div style="width:${(f.monto_cop / totalPagos) * 100}%"></div></div>` },
+          ], r.por_metodo)}
+          ${tabla('Origen del peso', [
+            { t: 'Origen', v: (f) => NOMBRE_FUENTE[f.fuente] || f.fuente },
+            { t: 'Productos', num: true, v: (f) => f.lineas },
+            { t: 'Kilos', num: true, v: (f) => Formato.kg(f.kg) },
+          ], r.pesaje.detalle)}
+          ${tabla('Productos más vendidos', [
+            { t: 'Producto', v: (f) => UI.escapar(f.nombre) },
+            { t: 'Cantidad', num: true, v: (f) => Formato.cantidad(f.cantidad, f.unidad) },
+            { t: 'Total', num: true, v: (f) => Formato.pesos(f.total) },
+          ], r.top_productos)}
+          ${tabla('Ventas por día', [
+            { t: 'Día', v: (f) => f.dia },
+            { t: 'Ventas', num: true, v: (f) => f.ventas },
+            { t: 'Total', num: true, v: (f) => Formato.pesos(f.total) },
+          ], r.por_dia)}
+          ${tabla('Por cajero y caja', [
+            { t: 'Cajero', v: (f) => UI.escapar(f.cajero || '—') },
+            { t: 'Ventas', num: true, v: (f) => f.ventas },
+            { t: 'Total', num: true, v: (f) => Formato.pesos(f.total) },
+            { t: 'Atención prom.', num: true, v: (f) => Formato.duracion(f.promedio_seg) },
+          ], r.por_cajero)}
+        </div>`;
+      // En la nube se puede filtrar por caja.
+      const selector = $('rep-caja');
+      const actual = selector.value;
+      if (App.estado?.modo === 'nube') {
+        $('rep-caja-campo').classList.remove('oculto');
+        selector.innerHTML = '<option value="">Todas</option>' + r.por_caja.map((c) =>
+          `<option value="${UI.escapar(c.caja_id)}">${UI.escapar(c.caja_id)}</option>`).join('');
+        selector.value = actual;
+      }
+    } catch (e) {
+      UI.error(e);
+    }
+  }
+
+  App.registrar('reportes', {
+    iniciar() {
+      if (!Sesion.esAdmin) return;
+      const hoy = Formato.hoy();
+      const hace7 = new Date(Date.now() - 6 * 86400000);
+      $('rep-desde').value = `${hace7.getFullYear()}-${String(hace7.getMonth() + 1).padStart(2, '0')}-${String(hace7.getDate()).padStart(2, '0')}`;
+      $('rep-hasta').value = hoy;
+      $('btn-rep-ver').addEventListener('click', ver);
+      document.querySelectorAll('[data-csv]').forEach((b) => b.addEventListener('click', () => {
+        const p = filtros();
+        p.set('tipo', b.dataset.csv);
+        Api.descargar('/reportes/csv?' + p).catch(UI.error.bind(UI));
+      }));
+    },
+    mostrar() {
+      if (Sesion.esAdmin) ver();
+    },
+  });
+})();
+
+</script>
+<script>
+// Configuración (solo administradores): báscula, negocio, puntos, usuarios y tasas.
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  function llenar(contenedor, datos) {
+    contenedor.querySelectorAll('[name]').forEach((el) => {
+      if (datos[el.name] !== undefined) el.value = datos[el.name];
+    });
+  }
+
+  async function cargar() {
+    const [bascula, negocio, usuarios, tasas] = await Promise.all([
+      App.estado?.modo === 'caja' ? Api.get('/bascula/configuracion') : Promise.resolve(null),
+      Api.get('/configuracion'),
+      Api.get('/configuracion/usuarios'),
+      Api.get('/tasas/historial'),
+    ]);
+    if (bascula) llenar($('form-bascula'), bascula);
+    else $('form-bascula').closest('.panel-box').classList.add('oculto');
+    llenar($('form-negocio'), negocio);
+    pintarUsuarios(usuarios);
+    $('tabla-tasas').innerHTML = tasas.map((t) => `
+      <tr><td>${Formato.fecha(t.creado_en)}</td><td class="num">${Formato.pesos(t.usd)}</td>
+      <td class="num">${Formato.numero(t.ves, 2)}</td><td>${UI.escapar(t.usuario_nombre || '')}</td></tr>`).join('');
+  }
+
+  function pintarUsuarios(usuarios) {
+    $('tabla-usuarios').innerHTML = usuarios.map((u) => `
+      <tr>
+        <td>${UI.escapar(u.nombre)}</td>
+        <td>${UI.escapar(u.correo)}</td>
+        <td>${u.rol === 'admin' ? 'Administrador' : 'Cajero'}</td>
+        <td>${u.activo ? '<span class="badge bien">activo</span>' : '<span class="badge gris">inactivo</span>'}</td>
+        <td><button class="icon-btn" data-usuario='${UI.escapar(JSON.stringify(u))}' title="Editar"><i class="fa-solid fa-pen"></i></button></td>
+      </tr>`).join('');
+  }
+
+  function formularioUsuario(u = {}) {
+    const existe = Boolean(u.id);
+    UI.modal({
+      titulo: existe ? 'Editar usuario' : 'Nuevo usuario',
+      html: `
+        <div class="form-grid">
+          <label class="campo ancho">Nombre <input class="input" name="nombre" value="${UI.escapar(u.nombre || '')}"></label>
+          <label class="campo ancho">Correo <input class="input" name="correo" type="email" value="${UI.escapar(u.correo || '')}" ${existe ? 'disabled' : ''}></label>
+          <label class="campo">Rol
+            <select class="select" name="rol">
+              <option value="cajero" ${u.rol !== 'admin' ? 'selected' : ''}>Cajero</option>
+              <option value="admin" ${u.rol === 'admin' ? 'selected' : ''}>Administrador</option>
+            </select></label>
+          <label class="campo">${existe ? 'Nueva contraseña (opcional)' : 'Contraseña'} <input class="input" name="clave" type="password" autocomplete="new-password"></label>
+          ${existe ? `<label class="check ancho"><input type="checkbox" name="activo" ${u.activo ? 'checked' : ''}> Usuario activo</label>` : ''}
+        </div>`,
+      botones: [
+        { texto: 'Cancelar', clase: 'secundario' },
+        {
+          texto: 'Guardar',
+          accion: async (m) => {
+            const d = UI.datosFormulario(m.el);
+            if (existe) {
+              if (!d.clave) delete d.clave;
+              delete d.correo;
+              await Api.put('/configuracion/usuarios/' + u.id, d);
+            } else {
+              await Api.post('/configuracion/usuarios', d);
+            }
+            UI.toast('Usuario guardado', 'success');
+            pintarUsuarios(await Api.get('/configuracion/usuarios'));
+            return true;
+          },
+        },
+      ],
+    });
+  }
+
+  App.registrar('configuracion', {
+    iniciar() {
+      if (!Sesion.esAdmin) return;
+      $('btn-guardar-bascula').addEventListener('click', async () => {
+        try {
+          await Api.put('/bascula/configuracion', UI.datosFormulario($('form-bascula')));
+          UI.toast('Báscula configurada. Reconectando…', 'success');
+        } catch (e) {
+          UI.error(e);
+        }
+      });
+      $('btn-puertos').addEventListener('click', async () => {
+        try {
+          const puertos = await Api.get('/bascula/puertos');
+          $('lista-puertos').innerHTML = puertos.map((p) => `<option value="${UI.escapar(p.ruta)}">${UI.escapar(p.descripcion)}</option>`).join('');
+          UI.toast(puertos.length ? `Puertos encontrados: ${puertos.map((p) => p.ruta).join(', ')}` : 'No se encontró ningún puerto. ¿Está conectada la báscula?',
+            puertos.length ? 'success' : 'error');
+        } catch (e) {
+          UI.error(e);
+        }
+      });
+      $('btn-guardar-negocio').addEventListener('click', async () => {
+        try {
+          await Api.put('/configuracion', UI.datosFormulario($('form-negocio')));
+          UI.toast('Datos guardados', 'success');
+        } catch (e) {
+          UI.error(e);
+        }
+      });
+      $('btn-nuevo-usuario').addEventListener('click', () => formularioUsuario());
+      $('tabla-usuarios').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-usuario]');
+        if (b) formularioUsuario(JSON.parse(b.dataset.usuario));
+      });
+    },
+    mostrar() {
+      if (Sesion.esAdmin) cargar().catch(UI.error.bind(UI));
+    },
+  });
+})();
+
+</script>
+<script>
+// Página de inicio de sesión.
+(function () {
+  if (Sesion.token) {
+    Demo.ir('app');
+    return;
+  }
+
+  const form = document.getElementById('login-form');
+  const error = document.getElementById('login-error');
+  const boton = document.getElementById('btn-login');
+
+  UI.reloj(document.getElementById('reloj-login'));
+  if (new URLSearchParams(location.search).has('vencida')) {
+    error.textContent = 'Tu sesión terminó. Vuelve a entrar.';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    error.textContent = '';
+    const { correo, clave, recordar } = UI.datosFormulario(form);
+    if (!correo.trim() || !clave) {
+      error.textContent = 'Escribe el correo y la contraseña.';
+      return;
+    }
+    boton.disabled = true;
+    boton.textContent = 'ENTRANDO...';
+    try {
+      const datos = await Api.post('/auth/login', { correo, clave });
+      Sesion.guardar(datos, recordar);
+      Demo.ir('app');
+    } catch (err) {
+      error.textContent = err.message;
+      boton.disabled = false;
+      boton.textContent = 'INICIAR SESIÓN';
+    }
+  });
+})();
+
+</script>
+<script>
+Demo.pintarControl();
+</script>

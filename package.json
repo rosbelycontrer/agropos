@@ -1,0 +1,28 @@
+{
+  "name": "agropos",
+  "version": "1.0.0",
+  "description": "Punto de venta para fruver (Cúcuta, Colombia) con báscula, multimoneda, fidelización y modo sin internet",
+  "main": "src/server.js",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "start": "node src/server.js",
+    "start:nube": "node src/server.js --nube",
+    "prueba": "node scripts/prueba.js",
+    "demo": "node scripts/construir-demo.js",
+    "reiniciar-bd": "node scripts/reiniciar-bd.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "better-sqlite3": "^12.4.1",
+    "express": "^5.1.0",
+    "serialport": "^13.0.0"
+  },
+  "allowScripts": {
+    "better-sqlite3@12.11.1": true,
+    "@serialport/bindings-cpp@13.0.0": true
+  }
+}

@@ -1,0 +1,86 @@
+/* ==========================================================
+   AgroPOS DEMO - ajustes para que las dos pantallas vivan en una sola página
+   ========================================================== */
+
+/* AgroPOS tiene un solo tema oscuro (azul marino y verde). */
+:root { color-scheme: dark; }
+html, body { background: var(--bg-dark); }
+
+.login-page { min-height: 100vh; }
+.app-page { min-height: 100vh; }
+
+/* Los íconos se dibujan como SVG dentro de cada <i>. */
+i[class*="fa-"] { display: inline-block; line-height: 1; }
+i[class*="fa-"] svg { width: 1em; height: 1em; vertical-align: -0.125em; }
+
+/* ---------- Control de la demo ---------- */
+.demo-control {
+  position: fixed;
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.5);
+  z-index: 800;
+  font-size: 0.75rem;
+}
+
+.demo-etiqueta {
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--warning);
+  padding: 0 6px;
+}
+
+.demo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-soft);
+  border-radius: 6px;
+  padding: 5px 9px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.demo-btn:hover { border-color: var(--accent-green); }
+.demo-btn:focus-visible, .btn:focus-visible, .product-card:focus-visible { outline: 2px solid var(--accent-green); outline-offset: 2px; }
+.demo-btn.en-linea { color: var(--accent-green); }
+.demo-btn.sin-linea { color: var(--warning); border-color: rgba(234, 179, 8, 0.5); }
+
+/* ---------- Recibo en ventana ---------- */
+.recibo-demo {
+  background: #fff;
+  color: #000;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  max-width: 80mm;
+  margin: 0 auto;
+  padding: 14px 12px;
+  border-radius: 4px;
+}
+
+.recibo-demo .r-fila { display: flex; justify-content: space-between; gap: 6px; }
+.recibo-demo .r-fila span:last-child { text-align: right; white-space: nowrap; }
+.recibo-demo .r-centro { text-align: center; }
+.recibo-demo .r-negrita { font-weight: bold; }
+.recibo-demo .r-grande { font-size: 15px; }
+.recibo-demo .r-chico { font-size: 10px; }
+.recibo-demo .r-sep { border-top: 1px dashed #000; margin: 6px 0; }
+
+/* ---------- Pantallas angostas (celular) ---------- */
+@media (max-width: 600px) {
+  .header-user .user-profile span, .brand-logo small { display: none; }
+  .header-nav { gap: 8px; }
+  .demo-etiqueta { display: none; }
+  .payment-methods { grid-template-columns: repeat(2, 1fr); }
+  .data-table th, .data-table td { padding: 8px; }
+  .acciones .input { width: 100% !important; }
+}

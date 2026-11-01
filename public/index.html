@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroPOS - Iniciar sesión</title>
+  <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body class="login-page">
+
+  <div class="top-bar-login">
+    <div><span><i class="fa-solid fa-seedling"></i> AgroPOS 1.0</span></div>
+    <div>
+      <span id="reloj"></span>
+      <span><i class="fa-solid fa-globe"></i> Español</span>
+    </div>
+  </div>
+
+  <div class="login-header">
+    <h1><i class="fa-solid fa-seedling"></i> AgroPOS</h1>
+    <h2>Punto de venta para fruver</h2>
+    <p>Báscula · Pesos, dólares y bolívares · Funciona sin internet</p>
+  </div>
+
+  <div class="glass-card">
+    <h3>Iniciar sesión</h3>
+
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <i class="fa-regular fa-user"></i>
+        <input type="email" name="correo" class="form-control" placeholder="Correo electrónico"
+               autocomplete="username" required>
+      </div>
+
+      <div class="form-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" name="clave" class="form-control" placeholder="Contraseña"
+               autocomplete="current-password" required>
+      </div>
+
+      <div class="form-options">
+        <label><input type="checkbox" name="recordar"> Recordarme en este equipo</label>
+      </div>
+
+      <p class="login-error" id="login-error" role="alert"></p>
+
+      <button type="submit" class="btn-submit" id="btn-login">INICIAR SESIÓN</button>
+    </form>
+
+    <p class="login-hint">
+      Usuarios de ejemplo:<br>
+      Administrador: admin@agropos.com / admin123<br>
+      Cajero: cajero@agropos.com / cajero123
+    </p>
+  </div>
+
+  <script src="js/comun.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>
