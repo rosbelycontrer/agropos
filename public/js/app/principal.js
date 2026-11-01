@@ -71,6 +71,7 @@ const App = {
     const pill = document.getElementById('pill-nube');
     pill.className = 'pill mal';
     pill.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Servidor local detenido';
+    this.vistas.ventas?.pintarSinServidor?.();
   },
 
   async salir() {

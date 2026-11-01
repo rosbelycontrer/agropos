@@ -25,7 +25,8 @@ let login = cuerpoHtml('public/index.html');
 login = reemplazar(login, 'id="reloj"', 'id="reloj-login"', 'index.html');
 login = reemplazar(login, 'name="correo" class="form-control"', 'name="correo" class="form-control" value="admin@agropos.com"', 'index.html');
 login = reemplazar(login, 'name="clave" class="form-control"', 'name="clave" class="form-control" value="admin123"', 'index.html');
-const app = cuerpoHtml('public/app.html');
+let app = cuerpoHtml('public/app.html');
+app = reemplazar(app, '<i class="fa-solid fa-print"></i> FINALIZAR E IMPRIMIR', '<i class="fa-solid fa-receipt"></i> FINALIZAR Y VER RECIBO', 'app.html');
 
 // ---------- JavaScript ----------
 let comun = leer('public/js/comun.js');
@@ -38,9 +39,10 @@ loginJs = reemplazar(loginJs, "getElementById('reloj')", "getElementById('reloj-
 let principal = leer('public/js/app/principal.js');
 principal = reemplazar(principal, "location.href = '/index.html';", "Demo.ir('login');", 'principal.js', true);
 
+// En la demo no se abren ventanas nuevas: el recibo se muestra dentro de la página.
 let ventas = leer('public/js/app/ventas.js');
-ventas = reemplazar(ventas, "window.open(`/recibo.html?id=${id}`, 'recibo', 'width=420,height=700');", 'Demo.recibo(id);', 'ventas.js');
-ventas = reemplazar(ventas, '<i class="fa-solid fa-print"></i> Imprimir recibo', '<i class="fa-solid fa-receipt"></i> Ver recibo', 'ventas.js');
+ventas = reemplazar(ventas, "return window.open('', 'recibo', 'width=420,height=700');", 'return null;', 'ventas.js');
+ventas = reemplazar(ventas, "else window.open(url, 'recibo', 'width=420,height=700');", 'else Demo.recibo(id);', 'ventas.js');
 
 const scripts = [
   leer('src/services/dinero.js'),

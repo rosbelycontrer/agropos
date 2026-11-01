@@ -87,13 +87,20 @@ de la báscula y lo guarda. Solo un administrador puede registrar un peso a mano
 
 ## 5. Cómo se usa (cajero)
 
+La pantalla de ventas cabe en una sola pantalla (1366 × 768): productos a la izquierda; báscula,
+carrito y el botón **COBRAR** a la derecha. Arriba, una barra muestra el estado de la nube, la báscula
+y el inventario (toca un indicador para ver el detalle), el botón **Stock bajo** y **Últimas ventas**
+(panel lateral con el botón para reimprimir).
+
 1. Busca el producto por nombre o PLU (tecla **F2**). Con **Enter** se agrega el PLU exacto.
 2. Productos por kg: pon el producto en la báscula, espera "Estable" y tócalo. Precio = precio/kg × peso.
    Productos por unidad: tócalo y usa + / −.
-3. (Opcional) Escribe la cédula del cliente para sumar puntos o redimirlos. Si no existe, se registra ahí mismo.
-4. Elige método (efectivo, tarjeta, transferencia, pago digital) y moneda (COP, USD, VES).
-5. Escribe lo que entrega el cliente o usa los botones de billetes. Para pagos mixtos usa **+**.
-6. Se muestra el cambio en pesos y en qué billetes y monedas darlo. **Confirmar pago** → imprimir recibo.
+3. Toca **COBRAR** o presiona **F12**: se abre la ventana de cobro con el cursor en "Recibido".
+4. (Opcional) Escribe la cédula del cliente para sumar puntos o redimirlos. Si no existe, se registra ahí mismo.
+5. Elige método (efectivo, tarjeta, transferencia, pago digital) y moneda (COP, USD, VES).
+6. Escribe lo que entrega el cliente o usa los botones de billetes. Para pagos mixtos usa **+**.
+7. Se muestra el cambio en pesos y en qué billetes y monedas darlo. **Finalizar e imprimir** (o **Enter**)
+   guarda la venta, imprime el recibo y deja la caja lista para el siguiente cliente. **Esc** cierra sin cobrar.
 
 Reglas de dinero:
 - Precios con IVA incluido (frutas y verduras frescas: 0 %).

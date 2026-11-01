@@ -111,7 +111,11 @@
     const pill = $('pill-bascula');
     pill.className = 'pill ' + (b.conectada ? 'ok' : 'mal');
     pill.textContent = b.modo === 'simulador' ? 'Simulador' : b.conectada ? b.puerto : 'Desconectada';
+    // Los botones del simulador solo existen en modo simulador; con báscula real se ocultan.
     $('simulador').classList.toggle('oculto', b.modo !== 'simulador');
+    pintarIndicador('ind-bascula',
+      !b.conectada ? 'falla' : b.modo === 'simulador' ? 'aviso' : 'ok',
+      !b.conectada ? 'Báscula: falla' : b.modo === 'simulador' ? 'Báscula: simulador' : 'Báscula');
   }
 
   async function accionBascula(ruta, cuerpo) {
@@ -183,7 +187,8 @@
 
   function pintarCobro() {
     const t = totales();
-    $('carrito-total').textContent = Formato.pesos(t.total_bruto);
+    $('cobrar-total').textContent = Formato.pesos(t.total);
+    $('btn-cobrar').classList.toggle('vacio', !st.carrito.length);
     $('res-bruto').textContent = Formato.pesos(t.total_bruto);
     $('res-descuento').textContent = '−' + Formato.pesos(t.descuento);
     $('linea-descuento').classList.toggle('oculto', !t.descuento);
@@ -295,14 +300,37 @@
       </div>` : ''}`;
   }
 
+  // ---------------- Ventana de cobro ----------------
+  const cobroAbierto = () => !$('modal-cobro').hidden;
+
+  function abrirCobro() {
+    if (!st.carrito.length) {
+      UI.toast('Agrega productos al carrito antes de cobrar.', 'error');
+      $('buscar-producto').focus();
+      return;
+    }
+    cerrarDesplegables();
+    $('modal-cobro').hidden = false;
+    pintarCobro();
+    $('monto-recibido').focus();
+  }
+
+  function cerrarCobro() {
+    $('modal-cobro').hidden = true;
+    $('buscar-producto').focus();
+  }
+
   // ---------------- Confirmar venta ----------------
   async function confirmar() {
     const t = totales();
     const pagos = pagosActuales(t.total).map(({ metodo, moneda, monto }) => ({ metodo, moneda, monto }));
     const cobro = Dinero.calcularCobro(t.total, pagos, st.tasas);
-    if (!st.carrito.length || !cobro.completo) return;
+    if (st.cobrando || !st.carrito.length || !cobro.completo) return;
     st.cobrando = true;
     $('btn-confirmar').disabled = true;
+    // La ventana del recibo se abre ya (dentro del clic o del Enter) para que el navegador
+    // no la bloquee; se llena cuando la venta queda guardada.
+    const ventanaRecibo = prepararVentanaRecibo();
     try {
       const venta = await Api.post('/ventas', {
         items: st.carrito.map((l) => l.producto.unidad === 'kg'
@@ -313,12 +341,18 @@
         pagos,
         inicio_atencion: st.inicioAtencion?.toISOString(),
       });
+      $('modal-cobro').hidden = true;
       limpiarVenta();
-      mostrarVentaHecha(venta);
-      cargarProductos();
-      cargarUltimasVentas();
+      abrirRecibo(venta.id, ventanaRecibo, true);
+      UI.toast(`Venta ${venta.numero} registrada · Cambio ${Formato.pesos(venta.cambio_cop)}` +
+        (venta.cliente_nombre ? ` · ${venta.cliente_nombre}: +${venta.puntos_ganados} pts` : '') +
+        (venta.sin_conexion ? ' · Guardada sin conexión: se subirá a la nube cuando vuelva internet.' : ''), 'success');
+      cargarProductos().catch(() => {});
+      cargarUltimasVentas().catch(() => {});
       App.actualizarEstado().catch(() => {});
+      $('buscar-producto').focus();
     } catch (e) {
+      if (ventanaRecibo && !ventanaRecibo.closed) ventanaRecibo.close();
       UI.error(e);
     } finally {
       st.cobrando = false;
@@ -326,29 +360,15 @@
     }
   }
 
-  function mostrarVentaHecha(v) {
-    const desglose = v.desglose_cambio.map((d) => `<span class="${d.tipo}">${d.cantidad} × ${Formato.pesos(d.valor)}</span>`).join('');
-    UI.modal({
-      titulo: `<i class="fa-regular fa-circle-check ok"></i> Venta ${UI.escapar(v.numero)} registrada`,
-      html: `
-        <div class="summary-line total" style="border:none;margin:0"><span>Total</span><span>${Formato.pesos(v.total)}</span></div>
-        <div class="summary-line"><span>Recibido</span><span>${Formato.pesos(v.pagado_cop)}</span></div>
-        <div class="cambio-box" style="margin-top:10px">
-          <div>Cambio a entregar</div>
-          <div class="cambio-monto">${Formato.pesos(v.cambio_cop)}</div>
-          <div class="desglose">${desglose || '<span>Sin cambio</span>'}</div>
-        </div>
-        ${v.cliente_nombre ? `<p class="muted">${UI.escapar(v.cliente_nombre)}: +${v.puntos_ganados} puntos${v.puntos_redimidos ? `, −${v.puntos_redimidos} redimidos` : ''} · saldo ${v.cliente_puntos} pts</p>` : ''}
-        ${v.sin_conexion ? '<p class="muted"><i class="fa-solid fa-cloud-arrow-up"></i> Guardada sin conexión: se subirá a la nube cuando vuelva internet.</p>' : ''}`,
-      botones: [
-        { texto: 'Cerrar', clase: 'secundario' },
-        { texto: '<i class="fa-solid fa-print"></i> Imprimir recibo', accion: () => { abrirRecibo(v.id); return true; } },
-      ],
-    });
+  function prepararVentanaRecibo() {
+    return window.open('', 'recibo', 'width=420,height=700');
   }
 
-  function abrirRecibo(id) {
-    window.open(`/recibo.html?id=${id}`, 'recibo', 'width=420,height=700');
+  // Muestra el recibo (recibo.html). Con "imprimir" abre de una vez el diálogo de impresión.
+  function abrirRecibo(id, ventana, imprimir = false) {
+    const url = `/recibo.html?id=${id}${imprimir ? '&imprimir=1' : ''}`;
+    if (ventana && !ventana.closed) ventana.location.href = url;
+    else window.open(url, 'recibo', 'width=420,height=700');
   }
 
   function limpiarVenta() {
@@ -399,7 +419,14 @@
     });
   }
 
-  // ---------------- Columna de estado ----------------
+  // ---------------- Barra de estado ----------------
+  // nivel: ok (verde), aviso (amarillo) o falla (rojo)
+  function pintarIndicador(id, nivel, texto) {
+    const el = $(id);
+    el.querySelector('.punto').className = 'punto ' + nivel;
+    el.querySelector('.ind-texto').textContent = texto;
+  }
+
   function itemEstado(ok, titulo, detalle, icono) {
     return `
       <div class="estado-item">
@@ -422,7 +449,50 @@
       itemEstado(!e.inventario.stock_bajo, 'Inventario',
         `${e.inventario.productos} productos · ${e.inventario.stock_bajo} con stock bajo · ${e.inventario.agotados} agotados`, 'fa-boxes-stacked'),
     ].join('');
+
+    $('barra-caja').textContent = e.caja_id || 'CAJA';
+    pintarIndicador('ind-nube', nube.conectada ? 'ok' : 'aviso',
+      nube.conectada ? 'Nube' : `Sin nube${nube.pendientes ? ` (${nube.pendientes})` : ''}`);
+    const inv = e.inventario;
+    pintarIndicador('ind-inventario', inv.agotados ? 'falla' : inv.stock_bajo ? 'aviso' : 'ok',
+      inv.agotados ? `Inventario: ${inv.agotados} agotado(s)` : inv.stock_bajo ? `Inventario: ${inv.stock_bajo} bajo(s)` : 'Inventario');
   }
+
+  // El servidor local no responde: la nube queda en rojo.
+  function pintarSinServidor() {
+    pintarIndicador('ind-nube', 'falla', 'Servidor detenido');
+  }
+
+  // ---------------- Desplegables y panel lateral ----------------
+  function cerrarDesplegables() {
+    document.querySelectorAll('#vista-ventas .popover').forEach((p) => { p.hidden = true; });
+    document.querySelectorAll('#vista-ventas [data-pop]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+  }
+
+  function alternarDesplegable(boton) {
+    const pop = $(boton.dataset.pop);
+    const abrir = pop.hidden;
+    cerrarDesplegables();
+    if (abrir) {
+      pop.hidden = false;
+      document.querySelectorAll(`[data-pop="${boton.dataset.pop}"]`).forEach((b) => b.setAttribute('aria-expanded', 'true'));
+    }
+  }
+
+  function abrirUltimasVentas() {
+    cerrarDesplegables();
+    cargarUltimasVentas().catch(UI.error.bind(UI));
+    $('cortina-ventas').hidden = false;
+    $('panel-ventas').classList.add('abierto');
+    $('btn-cerrar-ventas').focus();
+  }
+
+  function cerrarUltimasVentas() {
+    $('cortina-ventas').hidden = true;
+    $('panel-ventas').classList.remove('abierto');
+  }
+
+  const panelVentasAbierto = () => $('panel-ventas').classList.contains('abierto');
 
   function pintarStockBajo() {
     const bajos = st.productos.filter((p) => p.stock_bajo).sort((a, b) => a.stock / (a.stock_minimo || 1) - b.stock / (b.stock_minimo || 1));
@@ -434,7 +504,7 @@
   }
 
   async function cargarUltimasVentas() {
-    const ventas = await Api.get('/ventas?limite=6');
+    const ventas = await Api.get('/ventas?limite=15');
     $('ultimas-ventas').innerHTML = ventas.map((v) => `
       <div class="fila">
         <span>${UI.escapar(v.numero.split('-').pop())} · ${UI.escapar(String(v.creado_en).slice(11, 16))}
@@ -544,9 +614,6 @@
       pintarCobro();
     });
     $('monto-recibido').addEventListener('input', pintarCobro);
-    $('monto-recibido').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !$('btn-confirmar').disabled) confirmar();
-    });
     $('btn-agregar-pago').addEventListener('click', agregarPagoEscrito);
     $('pagos-lista').addEventListener('click', (e) => {
       const b = e.target.closest('[data-quitar-pago]');
@@ -573,11 +640,45 @@
       if (b) abrirRecibo(b.dataset.recibo);
     });
 
+    // Barra de estado, stock bajo y últimas ventas
+    document.querySelectorAll('#vista-ventas [data-pop]').forEach((b) =>
+      b.addEventListener('click', (e) => { e.stopPropagation(); alternarDesplegable(b); }));
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.popover')) cerrarDesplegables();
+    });
+    $('btn-ultimas').addEventListener('click', abrirUltimasVentas);
+    $('btn-cerrar-ventas').addEventListener('click', cerrarUltimasVentas);
+    $('cortina-ventas').addEventListener('click', cerrarUltimasVentas);
+
+    // Cobro
+    $('btn-cobrar').addEventListener('click', abrirCobro);
+    $('btn-cerrar-cobro').addEventListener('click', cerrarCobro);
+    $('modal-cobro').addEventListener('mousedown', (e) => { if (e.target.id === 'modal-cobro') cerrarCobro(); });
+    $('modal-cobro').addEventListener('keydown', (e) => {
+      // Enter confirma el cobro, salvo en la cédula y los puntos (tienen su propia acción) o sobre un botón.
+      if (e.key !== 'Enter' || e.target.tagName === 'BUTTON' || ['cedula', 'puntos-redimir'].includes(e.target.id)) return;
+      e.preventDefault();
+      if (!$('btn-confirmar').disabled) confirmar();
+    });
+
+    // Teclado: F2 buscar, F12 cobrar, Esc cerrar
     document.addEventListener('keydown', (e) => {
       if (App.vistaActual !== 'ventas') return;
-      if (e.key === 'F2') {
+      // Si hay otra ventana encima (ej. registrar cliente), Esc la cierra a ella primero.
+      const otraVentana = [...document.querySelectorAll('.modal-fondo')].some((m) => m.id !== 'modal-cobro' && !m.hidden);
+      if (e.key === 'F12') {
         e.preventDefault();
-        $('buscar-producto').focus();
+        if (!cobroAbierto() && !otraVentana) abrirCobro();
+      } else if (e.key === 'F2') {
+        e.preventDefault();
+        if (!cobroAbierto() && !otraVentana) {
+          cerrarUltimasVentas();
+          $('buscar-producto').focus();
+        }
+      } else if (e.key === 'Escape' && !otraVentana) {
+        if (cobroAbierto()) cerrarCobro();
+        else if (panelVentasAbierto()) cerrarUltimasVentas();
+        else cerrarDesplegables();
       }
     });
   }
@@ -603,6 +704,7 @@
       $('buscar-producto').focus();
     },
     pintarEstado,
+    pintarSinServidor,
     hayCarrito: () => st.carrito.length > 0,
     recargarProductos: () => cargarProductos(),
   });

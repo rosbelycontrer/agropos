@@ -47,13 +47,44 @@
 
       <!-- ============ VENTAS ============ -->
       <section class="view active" id="vista-ventas">
-        <div class="dashboard-grid">
 
-          <!-- 1. Productos -->
+        <!-- Barra de estado compacta -->
+        <div class="barra-pos">
+          <span class="barra-caja"><i class="fa-solid fa-cash-register"></i> <span id="barra-caja">CAJA</span></span>
+
+          <div class="indicadores">
+            <button class="indicador" id="ind-nube" data-pop="pop-estado" aria-expanded="false" title="Ver estado"><span class="punto"></span><span class="ind-texto">Nube</span></button>
+            <button class="indicador" id="ind-bascula" data-pop="pop-estado" aria-expanded="false" title="Ver estado"><span class="punto"></span><span class="ind-texto">Báscula</span></button>
+            <button class="indicador" id="ind-inventario" data-pop="pop-estado" aria-expanded="false" title="Ver estado"><span class="punto"></span><span class="ind-texto">Inventario</span></button>
+            <div class="popover" id="pop-estado" hidden>
+              <div class="box-header">
+                <span class="box-title">Estado</span>
+                <button class="icon-btn" id="btn-sincronizar" title="Sincronizar ahora"><i class="fa-solid fa-rotate"></i></button>
+              </div>
+              <div class="estado-lista" id="estado-lista"></div>
+            </div>
+          </div>
+
+          <div class="barra-derecha">
+            <div class="pop-ancla">
+              <button class="btn contorno barra-btn" id="btn-stock-bajo" data-pop="pop-stock" aria-expanded="false">
+                <i class="fa-solid fa-triangle-exclamation alerta"></i> Stock bajo <span class="badge bajo" id="n-stock-bajo">0</span>
+              </button>
+              <div class="popover derecha" id="pop-stock" hidden>
+                <div class="box-header"><span class="box-title">Stock bajo</span></div>
+                <div class="lista-compacta" id="lista-stock-bajo"></div>
+              </div>
+            </div>
+            <button class="btn contorno barra-btn" id="btn-ultimas"><i class="fa-solid fa-clock-rotate-left"></i> Últimas ventas</button>
+          </div>
+        </div>
+
+        <div class="pos-layout">
+          <!-- Productos -->
           <div class="panel-box">
             <div class="box-header">
               <span class="box-title">Productos</span>
-              <select class="select" id="filtro-categoria" style="width:auto;font-size:0.8rem;padding:4px 8px"></select>
+              <select class="select" id="filtro-categoria" style="width:auto;font-size:0.85rem;padding:6px 8px"></select>
             </div>
             <div class="buscador">
               <input class="input" id="buscar-producto" placeholder="Buscar por nombre o PLU (F2)" autocomplete="off">
@@ -61,106 +92,111 @@
             <div class="product-list" id="lista-productos"></div>
           </div>
 
-          <!-- 2. Báscula y carrito -->
-          <div class="panel-box">
-            <div class="box-header">
-              <span class="box-title">Báscula digital</span>
-              <span class="pill" id="pill-bascula">…</span>
-            </div>
-            <div class="meter-display">
-              <div class="gauge-circle" id="gauge">
-                <div class="gauge-inner">
+          <div class="pos-derecha">
+            <!-- Báscula -->
+            <div class="panel-box bascula-compacta">
+              <div class="bascula-fila">
+                <div class="peso-display" id="gauge">
                   <div class="gauge-label">PESO NETO</div>
-                  <div class="gauge-value" id="peso-valor">0.000</div>
-                  <div class="gauge-unit">KG</div>
+                  <div><span class="gauge-value" id="peso-valor">0.000</span> <span class="gauge-unit">kg</span></div>
+                </div>
+                <div class="bascula-info">
+                  <span class="pill" id="pill-bascula">…</span>
+                  <span id="peso-estable">—</span>
+                  <span id="peso-tara"></span>
+                </div>
+                <div class="meter-actions">
+                  <button class="btn-action" id="btn-cero">CERO</button>
+                  <button class="btn-action secondary" id="btn-tara">TARA</button>
                 </div>
               </div>
-              <div class="meter-info">
-                <span id="peso-estable">—</span>
-                <span id="peso-tara"></span>
-              </div>
-            </div>
-            <div class="meter-actions">
-              <button class="btn-action" id="btn-cero">CERO</button>
-              <button class="btn-action secondary" id="btn-tara">TARA</button>
-            </div>
-            <div class="simulador oculto" id="simulador">
-              <i class="fa-solid fa-flask"></i> Simulador (para probar sin báscula): poner en el plato…
-              <div class="simulador-botones">
-                <button class="btn chico secundario" data-sim="0.25">250 g</button>
-                <button class="btn chico secundario" data-sim="0.5">500 g</button>
-                <button class="btn chico secundario" data-sim="1">1 kg</button>
-                <button class="btn chico secundario" data-sim="2.5">2,5 kg</button>
-                <button class="btn chico secundario" data-sim="azar">Al azar</button>
-                <button class="btn chico contorno" data-sim="0">Retirar</button>
+              <div class="simulador oculto" id="simulador">
+                <i class="fa-solid fa-flask"></i> Simulador (para probar sin báscula): poner en el plato…
+                <div class="simulador-botones">
+                  <button class="btn chico secundario" data-sim="0.25">250 g</button>
+                  <button class="btn chico secundario" data-sim="0.5">500 g</button>
+                  <button class="btn chico secundario" data-sim="1">1 kg</button>
+                  <button class="btn chico secundario" data-sim="2.5">2,5 kg</button>
+                  <button class="btn chico secundario" data-sim="azar">Al azar</button>
+                  <button class="btn chico contorno" data-sim="0">Retirar</button>
+                </div>
               </div>
             </div>
 
-            <div class="box-header cart-header">
-              <span class="box-title" id="titulo-carrito">Carrito de venta (0)</span>
-              <button class="icon-btn borrar" id="btn-vaciar" title="Vaciar carrito"><i class="fa-solid fa-trash"></i></button>
-            </div>
-            <div class="cart-items" id="carrito"></div>
-            <div class="cart-footer"><span>TOTAL</span><span id="carrito-total">$0</span></div>
-          </div>
-
-          <!-- 3. Cobro -->
-          <div class="panel-box">
-            <div class="box-header"><span class="box-title">Cobro multimoneda</span></div>
-
-            <div class="cliente-box">
-              <div class="fila">
-                <input class="input" id="cedula" placeholder="Cédula del cliente (puntos)" inputmode="numeric" autocomplete="off">
-                <button class="btn secundario" id="btn-buscar-cliente" title="Buscar"><i class="fa-solid fa-magnifying-glass"></i></button>
-              </div>
-              <div id="cliente-info"></div>
-            </div>
-
-            <div class="summary-line"><span>Total productos</span><span id="res-bruto">$0</span></div>
-            <div class="summary-line" id="linea-descuento"><span>Descuento por puntos</span><span id="res-descuento">$0</span></div>
-            <div class="summary-line"><span>IVA incluido</span><span id="res-iva">$0</span></div>
-            <div class="summary-line"><span>Redondeo (a $50)</span><span id="res-redondeo">$0</span></div>
-            <div class="summary-line total"><span>TOTAL A PAGAR</span><span id="res-total">$0</span></div>
-
-            <div class="currency-box">
-              <div class="currency-row"><span><i class="fa-solid fa-coins" style="color:#eab308"></i> Pesos</span><span class="currency-value" id="eq-cop">$0</span></div>
-              <div class="currency-row"><span><i class="fa-solid fa-dollar-sign" style="color:#3b82f6"></i> Dólares</span><span class="currency-value" id="eq-usd">US$0,00</span></div>
-              <div class="currency-row"><span><i class="fa-solid fa-money-bill" style="color:#22c55e"></i> Bolívares</span><span class="currency-value" id="eq-ves">Bs 0,00</span></div>
-            </div>
-            <div class="tasa-linea">
-              <span id="tasa-texto">Tasa del día: …</span>
-              <button class="btn chico contorno solo-admin" id="btn-tasa"><i class="fa-solid fa-pen"></i> Tasa</button>
-            </div>
-
-            <div class="payment-methods" id="metodos"></div>
-            <div class="monedas" id="monedas"></div>
-            <div class="recibido">
-              <input class="input" id="monto-recibido" placeholder="Recibido" inputmode="decimal" autocomplete="off">
-              <button class="btn secundario" id="btn-agregar-pago" title="Agregar pago (para pagos mixtos)"><i class="fa-solid fa-plus"></i></button>
-            </div>
-            <div class="billetes-rapidos" id="billetes-rapidos"></div>
-            <div class="pagos-lista" id="pagos-lista"></div>
-            <div id="cambio"></div>
-
-            <button class="btn-confirm" id="btn-confirmar">CONFIRMAR PAGO <i class="fa-regular fa-circle-check"></i></button>
-          </div>
-
-          <!-- 4. Estado e inventario -->
-          <div>
-            <div class="panel-box">
+            <!-- Carrito -->
+            <div class="panel-box carrito-panel">
               <div class="box-header">
-                <span class="box-title">Estado</span>
-                <button class="icon-btn" id="btn-sincronizar" title="Sincronizar ahora"><i class="fa-solid fa-rotate"></i></button>
+                <span class="box-title" id="titulo-carrito">Carrito de venta (0)</span>
+                <button class="icon-btn borrar" id="btn-vaciar" title="Vaciar carrito"><i class="fa-solid fa-trash"></i></button>
               </div>
-              <div class="estado-lista" id="estado-lista"></div>
+              <div class="cart-items" id="carrito"></div>
             </div>
-            <div class="panel-box apilado">
-              <div class="box-header"><span class="box-title">Stock bajo</span><span class="badge bajo" id="n-stock-bajo">0</span></div>
-              <div class="lista-compacta" id="lista-stock-bajo"></div>
+
+            <!-- Cobrar -->
+            <button class="btn-cobrar vacio" id="btn-cobrar">
+              <span><i class="fa-solid fa-cash-register"></i> COBRAR <small>(F12)</small></span>
+              <span class="cobrar-total" id="cobrar-total">$0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Panel lateral: últimas ventas -->
+        <div class="cortina" id="cortina-ventas" hidden></div>
+        <aside class="panel-lateral" id="panel-ventas" aria-label="Últimas ventas">
+          <div class="box-header" style="margin:0">
+            <span class="box-title">Últimas ventas</span>
+            <button class="icon-btn" id="btn-cerrar-ventas" title="Cerrar (Esc)"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="lista-compacta" id="ultimas-ventas"></div>
+        </aside>
+
+        <!-- Ventana de cobro -->
+        <div class="modal-fondo" id="modal-cobro" hidden>
+          <div class="modal cobro-modal" role="dialog" aria-modal="true" aria-labelledby="titulo-cobro">
+            <div class="modal-cabecera">
+              <span id="titulo-cobro"><i class="fa-solid fa-cash-register ok"></i> Cobro multimoneda</span>
+              <button class="icon-btn" id="btn-cerrar-cobro" title="Cerrar (Esc)"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="panel-box apilado">
-              <div class="box-header"><span class="box-title">Últimas ventas</span></div>
-              <div class="lista-compacta" id="ultimas-ventas"></div>
+            <div class="modal-cuerpo cobro-grid">
+              <div class="cobro-col">
+                <div class="cliente-box">
+                  <div class="fila">
+                    <input class="input" id="cedula" placeholder="Cédula del cliente (puntos)" inputmode="numeric" autocomplete="off">
+                    <button class="btn secundario" id="btn-buscar-cliente" title="Buscar"><i class="fa-solid fa-magnifying-glass"></i></button>
+                  </div>
+                  <div id="cliente-info"></div>
+                </div>
+
+                <div class="summary-line"><span>Total productos</span><span id="res-bruto">$0</span></div>
+                <div class="summary-line" id="linea-descuento"><span>Descuento por puntos</span><span id="res-descuento">$0</span></div>
+                <div class="summary-line"><span>IVA incluido</span><span id="res-iva">$0</span></div>
+                <div class="summary-line"><span>Redondeo (a $50)</span><span id="res-redondeo">$0</span></div>
+                <div class="summary-line total"><span>TOTAL A PAGAR</span><span id="res-total">$0</span></div>
+
+                <div class="currency-box">
+                  <div class="currency-row"><span><i class="fa-solid fa-coins" style="color:#eab308"></i> Pesos</span><span class="currency-value" id="eq-cop">$0</span></div>
+                  <div class="currency-row"><span><i class="fa-solid fa-dollar-sign" style="color:#3b82f6"></i> Dólares</span><span class="currency-value" id="eq-usd">US$0,00</span></div>
+                  <div class="currency-row"><span><i class="fa-solid fa-money-bill" style="color:#22c55e"></i> Bolívares</span><span class="currency-value" id="eq-ves">Bs 0,00</span></div>
+                </div>
+                <div class="tasa-linea">
+                  <span id="tasa-texto">Tasa del día: …</span>
+                  <button class="btn chico contorno solo-admin" id="btn-tasa"><i class="fa-solid fa-pen"></i> Tasa</button>
+                </div>
+              </div>
+
+              <div class="cobro-col">
+                <div class="payment-methods" id="metodos"></div>
+                <div class="monedas" id="monedas"></div>
+                <div class="recibido">
+                  <input class="input" id="monto-recibido" placeholder="Recibido" inputmode="decimal" autocomplete="off">
+                  <button class="btn secundario" id="btn-agregar-pago" title="Agregar pago (para pagos mixtos)"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <div class="billetes-rapidos" id="billetes-rapidos"></div>
+                <div class="pagos-lista" id="pagos-lista"></div>
+                <div id="cambio"></div>
+
+                <button class="btn-confirm" id="btn-confirmar"><i class="fa-solid fa-print"></i> FINALIZAR E IMPRIMIR <small>(Enter)</small></button>
+              </div>
             </div>
           </div>
         </div>

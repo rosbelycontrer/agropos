@@ -47,6 +47,7 @@ button:disabled {
 .error-texto { color: var(--danger); }
 .num   { font-variant-numeric: tabular-nums; }
 .oculto { display: none !important; }
+[hidden] { display: none !important; }
 
 /* ---------- Botones ---------- */
 .btn {

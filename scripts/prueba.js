@@ -31,10 +31,11 @@ async function esperarBascula(token, condicion) {
 }
 
 async function pesar(token, kg) {
-  // Espera a que el plato quede vacío y estable antes de borrar la tara.
+  // Espera a que el plato quede vacío y estable, y hace CERO (también borra la tara).
+  // Así no importa si alguien dejó la báscula con un cero o una tara mal puestos.
   await api('/api/bascula/simular', { token, metodo: 'POST', cuerpo: { peso: 0 } });
-  await esperarBascula(token, (b) => b.estable && Math.abs(b.bruto - b.cero) < 0.005);
-  await api('/api/bascula/tara', { token, metodo: 'POST' });
+  await esperarBascula(token, (b) => b.estable && Math.abs(b.bruto) < 0.005);
+  await api('/api/bascula/cero', { token, metodo: 'POST' });
   await api('/api/bascula/simular', { token, metodo: 'POST', cuerpo: { peso: kg } });
   await esperarBascula(token, (b) => b.estable && Math.abs(b.neto - kg) < 0.01);
   const captura = await api('/api/bascula/capturar', { token, metodo: 'POST' });

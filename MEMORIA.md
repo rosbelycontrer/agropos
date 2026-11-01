@@ -5,7 +5,7 @@ Historial de decisiones y cambios. Lo más reciente va arriba en el registro.
 ## Estado actual
 
 - **Fase:** sistema completo v1.0. Backend probado: `npm run prueba` pasa 26/26 y la sincronización caja → nube funciona.
-- **Siguiente:** entregar el enlace de GitHub al profesor (Proyecto Integrador). Pantallas ya probadas en el navegador el 2026-10-31.
+- **Siguiente:** el usuario prueba la nueva pantalla de ventas con el teclado (F12, Enter, Esc) y la impresora (el rediseño ya está en GitHub) y, si quiere, republicar la demo (`npm run demo`).
 - **GitHub:** https://github.com/rosbelycontrer/agropos (público, rama `main`). Para subir cambios: `git add -A`, `git commit -m "..."`, `git push`.
 - **Stack:** Node.js + Express 5, SQLite con better-sqlite3, HTML/CSS/JS sin frameworks, `serialport` para la báscula. Sin CDN (Font Awesome se sirve desde `node_modules`).
 - **Cómo se abre:** `npm run dev` (caja + nube juntas, abre el navegador y reinicia solo al cambiar `src/`). También doble clic en `INICIAR-CAJA.bat` (puerto 3000) y, para la nube, `INICIAR-NUBE.bat` (puerto 4000). O `npm start` / `npm run start:nube`.
@@ -38,6 +38,19 @@ Historial de decisiones y cambios. Lo más reciente va arriba en el registro.
 - Recuperar contraseña; anular/devolver ventas; cierre de caja.
 
 ## Registro de cambios
+
+### 2026-11-01 (subida del rediseño)
+- `scripts/prueba.js`: antes de pesar hace CERO con el plato vacío (antes solo TARA). Fallaban 4 pruebas porque la báscula simulada quedó con cero = 0,5 kg (se presionó CERO con peso encima). No era un error del rediseño. 26/26 otra vez.
+- Subido a GitHub el rediseño de la pantalla de ventas.
+
+### 2026-11-01 (rediseño de la pantalla de ventas)
+- Pantalla de ventas más simple, sin scroll a 1366 × 768 (solo interfaz; no se tocó `dinero.js` ni el backend):
+  - Izquierda: productos. Derecha: báscula compacta, carrito y botón grande **COBRAR (F12)** con el total (con carrito vacío solo avisa).
+  - Barra superior: nombre de la caja, indicadores Nube / Báscula / Inventario (verde, amarillo, rojo; clic = detalle de estado con botón de sincronizar), desplegable **Stock bajo** y panel lateral **Últimas ventas** (reimprimir).
+  - **Ventana de cobro** (modal fijo en `app.html`, mismos `id` de antes): se abre con COBRAR/F12, foco en "Recibido", Esc o X la cierran, Enter confirma. Botón **Finalizar e imprimir**: guarda, abre `recibo.html?imprimir=1`, vacía el carrito, actualiza ventas y stock y vuelve al buscador. Se quitó la ventana de "venta registrada" (ahora es un aviso corto).
+  - La ventana del recibo se abre vacía en el mismo clic/Enter (para que el navegador no la bloquee) y `recibo.js` la cierra sola después de imprimir.
+- Archivos: `public/app.html`, `public/css/app.css`, `public/css/base.css` (`[hidden]`), `public/js/app/ventas.js`, `public/js/app/principal.js`, `public/js/recibo.js`, `scripts/construir-demo.js`, `README.md`.
+- Probado en Chrome sin ventana (1366 × 768 y 1366 × 657): ventas en COP, USD, VES, mixta y tarjeta con el simulador; totales y cambio iguales a `dinero.js`, stock y últimas ventas bien. F12/Enter/Esc se simularon dentro de la página porque Chrome sin ventana no deja pasar F12: falta probarlos con el teclado real.
 
 ### 2026-11-01
 - Sesión de GitHub iniciada (`gh auth login`, cuenta `rosbelycontrer`). Autor de los commits: `rosbelycontrer` con el correo privado noreply de GitHub.

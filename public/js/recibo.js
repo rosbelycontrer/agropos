@@ -54,7 +54,11 @@
       <div class="centro chico">AgroPOS · ${e(v.caja_id)}</div>`;
 
     document.title = 'Recibo ' + v.numero;
-    if (new URLSearchParams(location.search).has('imprimir')) window.print();
+    if (new URLSearchParams(location.search).has('imprimir')) {
+      // Al terminar de imprimir (o cancelar) se cierra sola y el vendedor vuelve a la caja.
+      window.addEventListener('afterprint', () => window.close());
+      window.print();
+    }
   } catch (err) {
     cont.textContent = err.message;
   }
