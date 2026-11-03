@@ -1,8 +1,11 @@
 # AgroPOS — Punto de venta para fruver
 
-Sistema de punto de venta para un fruver en Cúcuta (Colombia): báscula por puerto serie,
-cobro en pesos, dólares y bolívares, puntos para clientes, inventario por lotes, reportes
-y **funciona sin internet** (sube las ventas a la nube cuando vuelve la conexión).
+> **Prototipo** desarrollado para el Proyecto Integrador de Ingeniería de Sistemas.
+
+Sistema de punto de venta para fruvers de **Colombia y Venezuela** (aún no está pensado para
+una ciudad en específico): báscula por puerto serie, cobro en pesos, dólares y bolívares,
+puntos para clientes, inventario por lotes, reportes y **funciona sin internet** (sube las
+ventas a la nube cuando vuelve la conexión).
 
 - **Backend:** Node.js + Express
 - **Base de datos:** SQLite (better-sqlite3), un archivo por caja en `datos/`

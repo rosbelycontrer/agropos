@@ -39,6 +39,10 @@ Historial de decisiones y cambios. Lo más reciente va arriba en el registro.
 
 ## Registro de cambios
 
+### 2026-11-02
+- Decisión: AgroPOS es un **prototipo para fruvers de Colombia y Venezuela**, no para una ciudad en específico. Quitadas las menciones a Cúcuta en README, `package.json`, datos de ejemplo (dirección "Dirección del negocio", proveedor "Proveedor de ejemplo") y demo. Descripción del repositorio en GitHub actualizada.
+- La base `datos/caja.db` ya existente conserva la dirección vieja: se cambia en Configuración → Negocio.
+
 ### 2026-11-01 (subida del rediseño)
 - `scripts/prueba.js`: antes de pesar hace CERO con el plato vacío (antes solo TARA). Fallaban 4 pruebas porque la báscula simulada quedó con cero = 0,5 kg (se presionó CERO con peso encima). No era un error del rediseño. 26/26 otra vez.
 - Subido a GitHub el rediseño de la pantalla de ventas.

@@ -1,7 +1,7 @@
 {
   "name": "agropos",
   "version": "1.0.0",
-  "description": "Punto de venta para fruver (Cúcuta, Colombia) con báscula, multimoneda, fidelización y modo sin internet",
+  "description": "Prototipo de punto de venta para fruvers de Colombia y Venezuela con báscula, multimoneda, fidelización y modo sin internet",
   "main": "src/server.js",
   "private": true,
   "scripts": {

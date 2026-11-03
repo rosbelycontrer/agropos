@@ -5,7 +5,7 @@ const db = require('../db/database');
 const POR_DEFECTO = {
   negocio_nombre: 'Fruver AgroPOS',
   negocio_nit: '900.000.000-0',
-  negocio_direccion: 'Cúcuta, Norte de Santander',
+  negocio_direccion: 'Dirección del negocio',
   negocio_telefono: '',
   recibo_mensaje: '¡Gracias por su compra!',
   pesos_por_punto: '1000',   // 1 punto por cada $1.000 pagados

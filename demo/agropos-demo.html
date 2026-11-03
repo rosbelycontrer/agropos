@@ -1929,7 +1929,7 @@ const UI = {
     ['7002', 'Panela (500 g)', 'Granero', 'und', 3500, 5, 40, 10, '🟫'],
   ];
   const CONFIG_INICIAL = {
-    negocio_nombre: 'Fruver AgroPOS', negocio_nit: '900.000.000-0', negocio_direccion: 'Cúcuta, Norte de Santander',
+    negocio_nombre: 'Fruver AgroPOS', negocio_nit: '900.000.000-0', negocio_direccion: 'Dirección del negocio',
     negocio_telefono: '', recibo_mensaje: '¡Gracias por su compra!', pesos_por_punto: '1000', valor_punto: '10',
     bascula_modo: 'simulador', bascula_puerto: 'COM3', bascula_baudios: '9600', bascula_bits_datos: '8',
     bascula_paridad: 'none', bascula_bits_parada: '1', bascula_comando: '', bascula_intervalo_ms: '300',
@@ -1960,7 +1960,7 @@ const UI = {
     bd.clientes.push({ id: 3, cedula: '1093456789', nombre: 'Luz Marina Contreras', telefono: '3209876543', puntos: 65, creado_en: ahora });
     bd.seq.clientes = 3;
     bd.recepciones.push({
-      id: 1, lote: 'L-0001', proveedor: 'Cenabastos Cúcuta', notas: 'Inventario inicial', usuario_nombre: 'Administrador', creado_en: ahora,
+      id: 1, lote: 'L-0001', proveedor: 'Proveedor de ejemplo', notas: 'Inventario inicial', usuario_nombre: 'Administrador', creado_en: ahora,
       items: bd.productos.map((p) => ({ producto_id: p.id, cantidad: p.stock, costo_unitario: Math.round(p.precio * 0.7), vence: null })),
     });
     bd.seq.recepciones = 1;

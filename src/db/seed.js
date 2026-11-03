@@ -70,7 +70,7 @@ module.exports = function sembrar(db) {
 
     const recepcion = db.prepare(
       'INSERT INTO recepciones (lote, proveedor, notas, usuario_nombre) VALUES (?, ?, ?, ?)'
-    ).run('L-0001', 'Cenabastos Cúcuta', 'Inventario inicial', 'Administrador');
+    ).run('L-0001', 'Proveedor de ejemplo', 'Inventario inicial', 'Administrador');
     const insItem = db.prepare(
       'INSERT INTO recepcion_items (recepcion_id, producto_id, cantidad, costo_unitario) VALUES (?, ?, ?, ?)'
     );
